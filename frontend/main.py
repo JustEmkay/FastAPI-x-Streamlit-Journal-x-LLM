@@ -30,8 +30,8 @@ def session_validation():
                 'sucks' : 'sleep early/ wake up at 5am',
                 'created_date' : today
             }
+                
         
-
 def update_agenda(type : str, id : int):
     
     if type == 'completed':
@@ -40,19 +40,28 @@ def update_agenda(type : str, id : int):
             selctd = st.session_state.journal['agenda_not_done'][id]
             print(f"{selctd}")
             st.session_state.journal['agenda_done'].append(selctd)
+            st.session_state.journal['agenda_not_done'].pop(id)
             st.toast(f':green-background[Task Completed]')
-            time.sleep(2)
-            st.rerun()
-            
+            time.sleep(1)
         except Exception as e:
             print(f'Error Occured:{e}')
-        
+        finally:
+            st.rerun()
                 
     if type == 'not_completed':
         print("\nNot_Competed Function running.")
+        try:
+            selctd = st.session_state.journal['agenda_done'][id]
+            print(f"{selctd}")
+            st.session_state.journal['agenda_not_done'].append(selctd)
+            st.session_state.journal['agenda_done'].pop(id)
+            st.toast(f':green-background[Task Completed]')
+            time.sleep(1)
+        except Exception as e:
+            print(f'Error Occured:{e}')
+        finally:
+            st.rerun()
     
-
-
 def mood_box():
     st.caption("Rate your today's productivity and mood")
     
@@ -71,17 +80,43 @@ def mood_box():
     if mood is not None:
         col6.text(f"{selctd_mood[mood]}")            
 
+
 def agenda_box():
+    
     for index,agenda in enumerate(st.session_state.journal['agenda_not_done']):
         if st.checkbox(f'{agenda}',value=False,key=f'nc_{index}'):
-            update_agenda('completed',index)  
+            update_agenda('completed',index)
+                
+    for index_d,agenda_d in enumerate(st.session_state.journal['agenda_done']):
+        if not st.checkbox(f'{agenda_d}',value=True,key=f'c_{index_d}'):
+            update_agenda('not_completed',index_d)
+            
+def thankful_box():
+    col1, col2 = st.columns([3,1],
+                            vertical_alignment='center')
+    thankful_input : str = col1.text_input("Enter here",
+                                           label_visibility='collapsed')
+    
+    if col2.button("Submit",use_container_width=True):
+        if len(st.session_state.journal['thankful']) !=4:
+            st.session_state.journal['thankful'].append(thankful_input)
+    
+    for index, i in enumerate(st.session_state.journal['thankful']):
+        if st.checkbox(i,
+                       help="Check to delete",
+                       value=False):
+            try:
+                st.session_state.journal['thankful'].pop(index)
+            except Exception as e:
+                print("\nError:",e)
+            finally:
+                st.rerun()
+                
+def lesson_box():
+    ...
 
-            
-    for index,agenda in enumerate(st.session_state.journal['agenda_done']):
-        if not st.checkbox(f'{agenda}',value=True,key=f'c_{index}'):
-            update_agenda('not_completed',index)
-            
-              
+
+#---------------------------------------------              
 def main():
     with st.container(border=True,height=600):
         
@@ -107,10 +142,11 @@ def main():
             
         with tab3:
             st.header(tab_names[2],anchor=False)
+            thankful_box()
 
         with tab4:
             st.header(tab_names[3],anchor=False)
-        
+            lesson_box()
     
 if __name__ == "__main__":
     session_validation()
