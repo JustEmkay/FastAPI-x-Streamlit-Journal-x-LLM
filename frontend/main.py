@@ -1,6 +1,7 @@
 import streamlit as st 
 from quote import quote
 from datetime import datetime
+import time
 
 def session_validation():
     if 'quote' not in st.session_state:
@@ -31,7 +32,25 @@ def session_validation():
             }
         
 
-
+def update_agenda(type : str, id : int):
+    
+    if type == 'completed':
+        print("\nCompeted Function running.")
+        try:
+            selctd = st.session_state.journal['agenda_not_done'][id]
+            print(f"{selctd}")
+            st.session_state.journal['agenda_done'].append(selctd)
+            st.toast(f':green-background[Task Completed]')
+            time.sleep(2)
+            st.rerun()
+            
+        except Exception as e:
+            print(f'Error Occured:{e}')
+        
+                
+    if type == 'not_completed':
+        print("\nNot_Competed Function running.")
+    
 
 
 def mood_box():
@@ -54,12 +73,13 @@ def mood_box():
 
 def agenda_box():
     for index,agenda in enumerate(st.session_state.journal['agenda_not_done']):
-        if st.checkbox(f'{agenda}',value=False):
-            st.write(index)
+        if st.checkbox(f'{agenda}',value=False,key=f'nc_{index}'):
+            update_agenda('completed',index)  
+
             
     for index,agenda in enumerate(st.session_state.journal['agenda_done']):
-        if st.checkbox(f'{agenda}',value=True):
-            st.write(index)  
+        if not st.checkbox(f'{agenda}',value=True,key=f'c_{index}'):
+            update_agenda('not_completed',index)
             
               
 def main():
