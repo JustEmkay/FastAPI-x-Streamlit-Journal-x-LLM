@@ -62,7 +62,8 @@ def update_agenda(type : str, id : int):
         finally:
             st.rerun()
     
-def mood_box():
+def mood_box(tab_name : str):
+    st.header(tab_name,anchor=False)
     st.caption("Rate your today's productivity and mood")
     
     col1,col2,col3 = st.columns([1,1,1],vertical_alignment='bottom')
@@ -80,9 +81,8 @@ def mood_box():
     if mood is not None:
         col6.text(f"{selctd_mood[mood]}")            
 
-
-def agenda_box():
-    
+def agenda_box(tab_name : str):
+    st.header(tab_name,anchor=False)
     for index,agenda in enumerate(st.session_state.journal['agenda_not_done']):
         if st.checkbox(f'{agenda}',value=False,key=f'nc_{index}'):
             update_agenda('completed',index)
@@ -91,7 +91,8 @@ def agenda_box():
         if not st.checkbox(f'{agenda_d}',value=True,key=f'c_{index_d}'):
             update_agenda('not_completed',index_d)
             
-def thankful_box():
+def thankful_box(tab_name : str):
+    st.header(tab_name,anchor=False)
     col1, col2 = st.columns([3,1],
                             vertical_alignment='center')
     thankful_input : str = col1.text_input("Enter here",
@@ -112,9 +113,22 @@ def thankful_box():
             finally:
                 st.rerun()
                 
-def lesson_box():
-    ...
-
+def lesson_box(tab_name : str):
+    col1, col2 = st.columns([3,1],
+                            vertical_alignment='center')
+    col1.header(tab_name,anchor=False)
+    if col2.button('clear',use_container_width=True):
+        st.session_state.journal['lessons'] = ""
+        st.rerun()
+    if not st.session_state.journal['lessons']:
+        lesson_input : str = st.text_area("lesson",
+                                        label_visibility='collapsed',
+                                        height=100)
+        if st.button("Submit"):
+            ...
+    else:
+        st.session_state.journal['lessons']
+        
 
 #---------------------------------------------              
 def main():
@@ -122,7 +136,7 @@ def main():
         
         st.write(f":green[{datetime.today().strftime('%d:%m:%y')}] | day:d")
         with st.container(border=True):
-            st.write(f':grey-background["{st.session_state.quote["quote"]}"]')
+            st.write(f':grey-background[" {st.session_state.quote["quote"]} "]')
             st.write(f'by {st.session_state.quote["author"]} | :grey[{st.session_state.quote["book"]}]')
         
         tab_names : list[str] = [
@@ -133,20 +147,16 @@ def main():
         
         tab1, tab2, tab3, tab4 = st.tabs(tab_names)
         with tab1:
-            st.header(tab_names[0],anchor=False)
-            mood_box()
+            mood_box(tab_names[0])
             
         with tab2:
-            st.header(tab_names[1],anchor=False)
-            agenda_box()
+            agenda_box(tab_names[1])
             
         with tab3:
-            st.header(tab_names[2],anchor=False)
-            thankful_box()
+            thankful_box(tab_names[2])
 
         with tab4:
-            st.header(tab_names[3],anchor=False)
-            lesson_box()
+            lesson_box(tab_names[3])
     
 if __name__ == "__main__":
     session_validation()
