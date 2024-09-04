@@ -10,6 +10,9 @@ def session_validation():
     if 'first_time' not in st.session_state:
         st.session_state.first_time = False 
     
+    if 'mode_of_storage' not in st.session_state:
+        st.session_state.mode_of_storage = 0
+    
     if 'quote' not in st.session_state:
         try:
             res = quote('positive',limit=1)
@@ -28,11 +31,10 @@ def session_validation():
                 'id' : 1,
                 'productivity' : 0,
                 'mood' : 0,
-                'agenda_not_done' : ['read 20 pages','walk 10k steps',
-                                 'shop thorzhill vartha', 'practice english 20min'],
+                'agenda_not_done' : [],
                 'agenda_done' : [],
                 'thankful' : [],
-                'lessons' : "try not to worry about things you don't have control over",
+                'lessons' : "",
                 'sucks' : 'sleep early/ wake up at 5am',
                 'created_date' : 1725338860
             }
@@ -108,8 +110,10 @@ def mood_box(tab_name : str) -> None:
         col6.text(f"{selctd_mood[mood]}")            
 
 def agenda_box(tab_name : str) -> None:
+    
     head_c, bttn_c = st.columns([3,1],vertical_alignment='center')
     head_c.header(tab_name,anchor=False)
+    
     if bttn_c.button('clear',
                      use_container_width=True,
                      help=':red[Clear all completed agendas]'):
