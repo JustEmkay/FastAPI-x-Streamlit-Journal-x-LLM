@@ -7,6 +7,9 @@ import app_config
 #session stuffs
 
 def session_validation():
+    if 'first_time' not in st.session_state:
+        st.session_state.first_time = False 
+    
     if 'quote' not in st.session_state:
         try:
             res = quote('positive',limit=1)
@@ -66,12 +69,23 @@ def update_agenda(type : str, id : int) -> None:
         finally:
             st.rerun()
 
-#popover
-@st.dialog('Welcome To Journal')
+#welcome-popover
+
+@st.dialog('Welcome To Journal',width='large')
 def welcome_popover():
-    # with st.container(border=True):
-    img_url = app_config.img_url
-    st.image(img_url)
+    col1,col2 = st.columns(2)
+    col1.image(app_config.img_url)
+    col2.write('"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."\
+"There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."')
+    col2.page_link(page='pages/settings.py',
+                   label=':green[setup journal >>]',
+                   icon="🛠️")
+    st.session_state.first_time = True   
+
+def setup_popover():
+    if st.button('next'):
+        ...     
+
 #tab containers
     
 def mood_box(tab_name : str) -> None:
@@ -200,5 +214,6 @@ def main() -> None:
     
 if __name__ == "__main__":
     session_validation()
-    welcome_popover()
+    if not st.session_state.first_time:
+        welcome_popover()
     main()
