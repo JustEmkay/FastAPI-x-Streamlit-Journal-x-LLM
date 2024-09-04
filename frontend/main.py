@@ -3,6 +3,8 @@ from quote import quote
 from datetime import datetime
 import time
 
+#session stuffs
+
 def session_validation():
     if 'quote' not in st.session_state:
         try:
@@ -28,9 +30,10 @@ def session_validation():
                 'thankful' : [],
                 'lessons' : "try not to worry about things you don't have control over",
                 'sucks' : 'sleep early/ wake up at 5am',
-                'created_date' : today
+                'created_date' : 1725338860
             }
                 
+#functions 
         
 def update_agenda(type : str, id : int):
     
@@ -55,12 +58,14 @@ def update_agenda(type : str, id : int):
             print(f"{selctd}")
             st.session_state.journal['agenda_not_done'].append(selctd)
             st.session_state.journal['agenda_done'].pop(id)
-            st.toast(f':green-background[Task Completed]')
+            st.toast(f':red-background[Task not Completed]')
             time.sleep(1)
         except Exception as e:
             print(f'Error Occured:{e}')
         finally:
             st.rerun()
+
+#tab containers
     
 def mood_box(tab_name : str):
     st.header(tab_name,anchor=False)
@@ -82,7 +87,28 @@ def mood_box(tab_name : str):
         col6.text(f"{selctd_mood[mood]}")            
 
 def agenda_box(tab_name : str):
-    st.header(tab_name,anchor=False)
+    head_c, bttn_c = st.columns([3,1],vertical_alignment='center')
+    head_c.header(tab_name,anchor=False)
+    if bttn_c.button('clear',
+                     use_container_width=True,
+                     help=':red[Clear all completed agendas]'):
+        st.session_state.journal['agenda_done'] = []
+        st.toast(':green-background[All Completed Agenda cleared]')
+    
+    if len(st.session_state.journal['agenda_not_done'] + 
+           st.session_state.journal['agenda_done']) != 5:
+        
+        col1, col2 = st.columns([3,1],vertical_alignment='center') 
+        agenda_input : str = col1.text_input('Enter agenda',
+                                             label_visibility='collapsed')
+        if col2.button("add agenda",
+                       type='primary',
+                       use_container_width=True):
+            st.session_state.journal['agenda_not_done'].append(agenda_input)
+            st.toast(":green-background[added successfully]")
+    
+    
+    
     for index,agenda in enumerate(st.session_state.journal['agenda_not_done']):
         if st.checkbox(f'{agenda}',value=False,key=f'nc_{index}'):
             update_agenda('completed',index)
@@ -98,7 +124,9 @@ def thankful_box(tab_name : str):
     thankful_input : str = col1.text_input("Enter here",
                                            label_visibility='collapsed')
     
-    if col2.button("Submit",use_container_width=True):
+    if col2.button("Submit",
+                   type='primary',
+                   use_container_width=True):
         if len(st.session_state.journal['thankful']) !=4:
             st.session_state.journal['thankful'].append(thankful_input)
     
@@ -117,14 +145,19 @@ def lesson_box(tab_name : str):
     col1, col2 = st.columns([3,1],
                             vertical_alignment='center')
     col1.header(tab_name,anchor=False)
-    if col2.button('clear',use_container_width=True):
+    if col2.button('clear',
+                   help=':red[Clear inputed lessons]',
+                   use_container_width=True):
         st.session_state.journal['lessons'] = ""
         st.rerun()
+    
     if not st.session_state.journal['lessons']:
         lesson_input : str = st.text_area("lesson",
                                         label_visibility='collapsed',
                                         height=100)
-        if st.button("Submit"):
+        if st.button("Submit",
+                     key='lesson_submit',
+                     type='primary'):
             ...
     else:
         st.session_state.journal['lessons']
@@ -132,7 +165,7 @@ def lesson_box(tab_name : str):
 
 #---------------------------------------------              
 def main():
-    with st.container(border=True,height=600):
+    with st.container(border=True,height=610):
         
         st.write(f":green[{datetime.today().strftime('%d:%m:%y')}] | day:d")
         with st.container(border=True):
