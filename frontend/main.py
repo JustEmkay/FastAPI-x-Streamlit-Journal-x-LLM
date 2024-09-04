@@ -2,6 +2,7 @@ import streamlit as st
 from quote import quote
 from datetime import datetime
 import time
+import app_config
 
 #session stuffs
 
@@ -35,7 +36,7 @@ def session_validation():
                 
 #functions 
         
-def update_agenda(type : str, id : int):
+def update_agenda(type : str, id : int) -> None:
     
     if type == 'completed':
         print("\nCompeted Function running.")
@@ -65,9 +66,15 @@ def update_agenda(type : str, id : int):
         finally:
             st.rerun()
 
+#popover
+@st.dialog('Welcome To Journal')
+def welcome_popover():
+    # with st.container(border=True):
+    img_url = app_config.img_url
+    st.image(img_url)
 #tab containers
     
-def mood_box(tab_name : str):
+def mood_box(tab_name : str) -> None:
     st.header(tab_name,anchor=False)
     st.caption("Rate your today's productivity and mood")
     
@@ -86,7 +93,7 @@ def mood_box(tab_name : str):
     if mood is not None:
         col6.text(f"{selctd_mood[mood]}")            
 
-def agenda_box(tab_name : str):
+def agenda_box(tab_name : str) -> None:
     head_c, bttn_c = st.columns([3,1],vertical_alignment='center')
     head_c.header(tab_name,anchor=False)
     if bttn_c.button('clear',
@@ -117,7 +124,7 @@ def agenda_box(tab_name : str):
         if not st.checkbox(f'{agenda_d}',value=True,key=f'c_{index_d}'):
             update_agenda('not_completed',index_d)
             
-def thankful_box(tab_name : str):
+def thankful_box(tab_name : str) -> None:
     st.header(tab_name,anchor=False)
     col1, col2 = st.columns([3,1],
                             vertical_alignment='center')
@@ -141,7 +148,7 @@ def thankful_box(tab_name : str):
             finally:
                 st.rerun()
                 
-def lesson_box(tab_name : str):
+def lesson_box(tab_name : str) -> None:
     col1, col2 = st.columns([3,1],
                             vertical_alignment='center')
     col1.header(tab_name,anchor=False)
@@ -164,7 +171,7 @@ def lesson_box(tab_name : str):
         
 
 #---------------------------------------------              
-def main():
+def main() -> None:
     with st.container(border=True,height=610):
         
         st.write(f":green[{datetime.today().strftime('%d:%m:%y')}] | day:d")
@@ -193,4 +200,5 @@ def main():
     
 if __name__ == "__main__":
     session_validation()
+    welcome_popover()
     main()
