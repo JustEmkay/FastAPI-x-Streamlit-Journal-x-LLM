@@ -3,6 +3,8 @@ from quote import quote
 from datetime import datetime
 import time
 import app_config
+import json
+from dbModes.sModes import sModes
 
 #session stuffs
 
@@ -15,6 +17,7 @@ def session_validation():
     
     if 'quote' not in st.session_state:
         try:
+            raise Exception("Error Occured")
             res = quote('positive',limit=1)
             st.session_state.quote = res[0]
         except:
@@ -28,7 +31,7 @@ def session_validation():
     if 'journal' not in st.session_state:
         today = int(datetime.today().timestamp())
         st.session_state.journal = {
-                'id' : 1,
+                'id' : 1 ,
                 'productivity' : 0,
                 'mood' : 0,
                 'agenda_not_done' : [],
@@ -36,8 +39,29 @@ def session_validation():
                 'thankful' : [],
                 'lessons' : "",
                 'sucks' : 'sleep early/ wake up at 5am',
-                'created_date' : 1725338860
+                'created_date' : today
             }
+
+        # path : str = st.session_state.journal_path
+        # with open(path) as fp:
+        #     journal_stored_data = json.load(fp)
+        #     if journal_stored_data:
+        #         if journal_stored_data[-1]['created_date'] < today :
+        #             st.session_state.journal = {
+        #                     'productivity' : 0,
+        #                     'mood' : 0,
+        #                     'agenda_not_done' : [],
+        #                     'agenda_done' : [],
+        #                     'thankful' : [],
+        #                     'lessons' : "",
+        #                     'sucks' : 'sleep early/ wake up at 5am',
+        #                     'created_date' : today
+        #                 }
+        #         if journal_stored_data[-1]['created_date'] == today :
+        #             st.session_state.journal = journal_stored_data[-1]
+     
+    if 'journal_path' not in st.session_state :
+        st.session_state.journal_path = r'C:\Users\USER\Downloads\journal.json'
                 
 #functions 
         
@@ -71,23 +95,6 @@ def update_agenda(type : str, id : int) -> None:
         finally:
             st.rerun()
 
-#welcome-popover
-
-@st.dialog('Welcome To Journal',width='large')
-def welcome_popover():
-    col1,col2 = st.columns(2)
-    col1.image(app_config.img_url)
-    col2.write('"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."\
-"There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."')
-    col2.page_link(page='pages/settings.py',
-                   label=':green[setup journal >>]',
-                   icon="🛠️")
-    st.session_state.first_time = True   
-
-def setup_popover():
-    if st.button('next'):
-        ...     
-
 #tab containers
     
 def mood_box(tab_name : str) -> None:
@@ -112,7 +119,7 @@ def mood_box(tab_name : str) -> None:
 def agenda_box(tab_name : str) -> None:
     
     head_c, bttn_c = st.columns([3,1],vertical_alignment='center')
-    head_c.header(tab_name,anchor=False)
+    head_c.subheader(tab_name,anchor=False)
     
     if bttn_c.button('clear',
                      use_container_width=True,
@@ -125,8 +132,9 @@ def agenda_box(tab_name : str) -> None:
         
         col1, col2 = st.columns([3,1],vertical_alignment='center') 
         agenda_input : str = col1.text_input('Enter agenda',
+                                             placeholder='Example: walk min.10000 steps',
                                              label_visibility='collapsed')
-        if col2.button("add agenda",
+        if col2.button("create",
                        type='primary',
                        use_container_width=True):
             st.session_state.journal['agenda_not_done'].append(agenda_input)
@@ -186,10 +194,31 @@ def lesson_box(tab_name : str) -> None:
             ...
     else:
         st.session_state.journal['lessons']
-        
+
+@st.dialog("Cast your vote")
+def setup_local():
+    st.write('hello')
+    ...
 
 #---------------------------------------------              
+
+
 def main() -> None:
+    sm = sModes(st.session_state.journal['id'],
+                st.session_state.journal['productivity'],
+                st.session_state.journal['mood'],
+                st.session_state.journal['agenda_not_done'],
+                st.session_state.journal['agenda_done'],
+                st.session_state.journal['thankful'],
+                st.session_state.journal['lessons'],
+                st.session_state.journal['sucks'],
+                st.session_state.journal['created_date'],)
+    
+    sm.test()
+    # sm.update_to_local(st.session_state.journal_path)
+    
+    
+
     with st.container(border=True,height=610):
         
         st.write(f":green[{datetime.today().strftime('%d:%m:%y')}] | day:d")
@@ -202,22 +231,36 @@ def main() -> None:
             "Today's Agenda",
             "Today, I'm Thankful for",
             "Today's Lessons"]
+         
+        if len(st.session_state.journal['agenda_done'] + 
+               st.session_state.journal['agenda_not_done']) != 0 :
         
-        tab1, tab2, tab3, tab4 = st.tabs(tab_names)
-        with tab1:
-            mood_box(tab_names[0])
-            
-        with tab2:
-            agenda_box(tab_names[1])
-            
-        with tab3:
-            thankful_box(tab_names[2])
+            tab1, tab2, tab3, tab4 = st.tabs(tab_names)
+            with tab1:
+                mood_box(tab_names[0])
+                
+            with tab2:
+                agenda_box(tab_names[1])
+                
+            with tab3:
+                thankful_box(tab_names[2])
 
-        with tab4:
-            lesson_box(tab_names[3])
+            with tab4:
+                lesson_box(tab_names[3])
     
+        else:
+            st.info("You need to set min one agenda",icon='❕')
+            st.page_link(page='pages/settings.py',
+                label=':green[Add agenda >>]',
+                icon="🛠️")
+    
+
+#---------MAIN--------------------------------  
 if __name__ == "__main__":
     session_validation()
     if not st.session_state.first_time:
-        welcome_popover()
-    main()
+        # welcome_popover()
+        st.switch_page('pages/2_about.py')
+        # first_setup()
+    elif st.session_state.first_time:
+        main()

@@ -1,12 +1,14 @@
 import streamlit as st 
 from main import agenda_box
 from pathlib import Path
-import time 
+import time,json,pytz
+from dbModes.sModes import sModes
 
 def main() -> None:
+        
     st.header('Settings ⚙',divider='red',anchor=False)
     
-    with st.expander('Type of storage 💾',expanded=True):
+    with st.expander('Type of storage 💾',expanded=False):
         
         storage_modes : list[str] = [
             'Database',
@@ -27,7 +29,7 @@ def main() -> None:
             
             
                 
-        if st.button(f'Set **{slctd_optn}** selected mode',
+        if st.button(f'Set **{slctd_optn}** as storage mode',
                      type='primary',
                              use_container_width=True):
             if slctd_optn == 'Database':
@@ -41,15 +43,18 @@ def main() -> None:
                         p = Path(path)
                         with st.spinner('loading.....'):
                             time.sleep(1)
+                            
                             if p.is_dir():
-                                st.session_state.journal_path = path
+                                test : list[dict] = [st.session_state.journal]
+                                st.session_state.journal_path = path + '\journal.json'
+                                with open(st.session_state.journal_path, 'w') as fp:
+                                    json.dump(test, fp)
                             else:
-                                ...
+                                st.warning('Path not found')
                         
                 except Exception as e:
                     print(f'\nError: {e}')
                 
-                # st.rerun()
         
     with st.expander('Set per-agendas 📝',expanded=True):
         agenda_box('Set agenda')
