@@ -56,7 +56,7 @@ def main() -> None:
                     print(f'\nError: {e}')
                 
         
-    with st.expander('Set per-agendas 📝',expanded=True):
+    with st.expander('Set pre-agendas 📝',expanded=False):
         agenda_box('Set agenda')
     
     with st.expander('Import 📥'):

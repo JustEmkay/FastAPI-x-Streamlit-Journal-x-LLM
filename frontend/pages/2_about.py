@@ -33,9 +33,12 @@ def setup_local(optn):
             
         else:
             st.session_state.journal_path = j_path + '\journal.json'
-            if check_for_file(st.session_state.journal_path):
+            if not check_for_file(st.session_state.journal_path):
                 create_file(st.session_state.journal_path)
             
+        if st.button('set as storage mode'):
+            st.session_state.first_time = True
+            st.switch_page('main.py')
     
 
 def main():

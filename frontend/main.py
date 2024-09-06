@@ -195,10 +195,6 @@ def lesson_box(tab_name : str) -> None:
     else:
         st.session_state.journal['lessons']
 
-@st.dialog("Cast your vote")
-def setup_local():
-    st.write('hello')
-    ...
 
 #---------------------------------------------              
 
@@ -250,7 +246,7 @@ def main() -> None:
     
         else:
             st.info("You need to set min one agenda",icon='❕')
-            st.page_link(page='pages/settings.py',
+            st.page_link(page='pages/3_settings.py',
                 label=':green[Add agenda >>]',
                 icon="🛠️")
     
