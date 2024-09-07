@@ -1,9 +1,8 @@
 import streamlit as st 
 from quote import quote
-from datetime import datetime
-import time
+from datetime import datetime,time
 import app_config
-import json
+import pytz
 from dbModes.sModes import sModes
 
 #session stuffs
@@ -39,7 +38,7 @@ def session_validation():
                 'thankful' : [],
                 'lessons' : "",
                 'sucks' : 'sleep early/ wake up at 5am',
-                'created_date' : today
+                'created_date' : int(datetime.combine(datetime.now(pytz.timezone('Asia/Calcutta')),time.min).timestamp())
             }
 
         # path : str = st.session_state.journal_path
@@ -212,7 +211,7 @@ def main() -> None:
     
     sm.test()
     # sm.update_to_local(st.session_state.journal_path)
-    
+    sm.update_to_local(st.session_state.journal_path)
     
 
     with st.container(border=True,height=610):
@@ -253,10 +252,14 @@ def main() -> None:
 
 #---------MAIN--------------------------------  
 if __name__ == "__main__":
+    
+    st.set_page_config(
+        initial_sidebar_state='collapsed',
+        
+    )
+    
     session_validation()
     if not st.session_state.first_time:
-        # welcome_popover()
         st.switch_page('pages/2_about.py')
-        # first_setup()
     elif st.session_state.first_time:
         main()
