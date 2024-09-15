@@ -56,6 +56,13 @@ class sModes:
                         journal_stored_data.append(j_data)
                 
                 
+                
+                
+                
+                
+                
+                
+                
         except Exception as e:
             print(f'\nError : {e}')
                         # journal_page = {
