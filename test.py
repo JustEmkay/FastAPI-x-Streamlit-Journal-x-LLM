@@ -38,6 +38,16 @@ data : dict = {
     }
                 }
 
+temp_journal : dict = {
+        'completed' : [],
+        'not_completed' : [],
+        'mood' : 0,
+        'productivity' : 0,
+        'lessons' : '',
+        'thankful' : [],
+        'sucks' : ''    
+        }
+
 users_data : dict = {
     '123@gmail.com' : {
         'id': '3cc4505f-3678-414c-b544-e26555728b9c',
@@ -91,8 +101,22 @@ def check_timestamp(uid,tstamp) -> bool:
         return True
     return False
 
+def create_journal(uid,tstamp) -> None:
+    try:
+        data.update({
+            uid : {
+            tstamp : temp_journal
+            }
+            })
+    except Exception as e:
+        print(f'Creatte_journal Error:{e}')
+
+
 @app.get("/journal/{uid}/{tstamp}")
 def get_journal(uid : str,tstamp : int):
-    
+    if check_id(uid):
+        if not check_timestamp(uid,tstamp):
+            create_journal(uid,tstamp)
+            
     journal : dict = data[uid][tstamp]
     return journal
