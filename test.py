@@ -7,21 +7,36 @@ app = FastAPI()
 
 data : dict = {
     '3cc4505f-3678-414c-b544-e26555728b9c':{
-        'created' : 1726056000,
+        1726056000 : {
         'completed' : ['Go for a walk','Call Juhi'],
         'not_completed' : ['Complete Abyss 12'],
-    },
-    '3cc4505f-3678-414c-b544-e26555728b9c':{
-        'created' : 1726228800,
+        'mood' : 4,
+        'productivity' : 5,
+        'lessons' : 'do or die',
+        'thankful' : ['Still alive','Having lovely parents'],
+        'sucks' : 'waking up at 5 am.'    
+        },
+        1726228800 : {
         'completed' : ['Completed 10000 steps'],
         'not_completed' : ['Call Juhi'],
-    },
-    '3cc4505f-3678-414c-b544-e26555728b9c':{
-        'created' : 1726358400,
+        'mood' : 2,
+        'productivity' : 2,
+        'lessons' : 'do or die',
+        'thankful' : ['Still alive','Having lovely parents'],
+        'sucks' : 'Same as usual, waking up at 5 am.'    
+        },
+        1726358400 : {
         'completed' : ['Go to temple'],
         'not_completed' : ['make Onam Pookalam'],
-    },
-}
+        'mood' : 4,
+        'productivity' : 5,
+        'lessons' : 'do or die',
+        'thankful' : ['Still alive','Having lovely parents'],
+        'sucks' : 'Same Same, waking up at 5 am.'
+        }
+        
+    }
+                }
 
 users_data : dict = {
     '123@gmail.com' : {
@@ -44,18 +59,18 @@ def connection():
     return True
 
 @app.post("/verify/{email}")
-async def verify_email(email: str):
+def verify_email(email: str):
     if email in users_data:
-        print(users_data[email])
         return False
     return True
 
 @app.post("/validate/{email}/{password}")
-async def validate(email : str , password : str):
+def validate(email : str , password : str):
     user_hash = password.encode('utf-8')
     user_og_hash = users_data[email]['password'].encode()
     result : bool = bcrypt.checkpw(user_hash,user_og_hash)
     if result:
+        print(f'id:{users_data[email]["id"]}')
         return {
             'auth': True ,
             'user_id':f'{users_data[email]["id"]}'
@@ -66,7 +81,18 @@ async def validate(email : str , password : str):
             'user_id': None
             }
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+def check_id(uid) -> bool:
+    if data[uid]:
+        return True
+    return False
 
+def check_timestamp(uid,tstamp) -> bool:
+    if tstamp in data[uid].keys():
+        return True
+    return False
+
+@app.get("/journal/{uid}/{tstamp}")
+def get_journal(uid : str,tstamp : int):
+    
+    journal : dict = data[uid][tstamp]
+    return journal

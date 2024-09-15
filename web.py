@@ -1,5 +1,5 @@
 import streamlit as st
-import requests,time
+import requests,time,pytz
 from datetime import datetime as dt, time as t
 from rich.console import Console
 import bcrypt
@@ -12,6 +12,9 @@ if 'api_connect' not in st.session_state: st.session_state.api_connect = False
 if 'error' not in st.session_state: st.session_state.error = False
 if 'auth' not in st.session_state: st.session_state.auth = False
 if 'user_id' not in st.session_state: st.session_state.user_id = None
+if 'user_journal' not in st.session_state: st.session_state.user_journal = None
+tstamp_today : int  = dt.combine(dt.now(pytz.timezone('Asia/Calcutta')),t.min).timestamp()
+
 
 def connect_api() -> bool:
     r = requests.get(URL_API+'connection')
@@ -51,14 +54,27 @@ def login_req(username,password) -> dict:
     if response == 200:
         return r.json()
 
-class LoadTask:
-    def __init__(self) -> None:
-        pass
+class ManageJournal:
+    def __init__(self,user_id,tstamp_today) -> None:
+        self.id : int = user_id
+        self.timestmp : int = tstamp_today
 
+    def load_data(self) -> dict:
+        r = requests.get(URL_API+f'journal/{self.id}/{self.timestmp}')
+        response = r.status_code
+        if response == 200:
+            return r.json()
+        return {}
 
 def homepage() -> None:
-    lt : object = LoadTask()
-
+    mj : object = ManageJournal(st.session_state.user_id,tstamp_today)
+    if not st.session_state.user_journal:
+        st.session_state.user_journal = mj.load_data()
+        st.spinner("Updating journal....")
+        time.sleep(2)
+        st.rerun()
+    if st.button('rerun'):
+        st.rerun()
 
 def main() -> None:
     
@@ -93,7 +109,9 @@ def main() -> None:
         if st.session_state.auth and st.session_state.user_id:
             
             homepage()
+            
         else:
+            #login form
             with st.container(border=True):
                 st.subheader('Login',anchor=False,divider=True)
                 username =st.text_input("Username:",
@@ -103,7 +121,7 @@ def main() -> None:
                                             placeholder="Enter your password",
                                             label_visibility='collapsed',
                                             type='password')
-                verify_email(username)
+                if username : verify_email(username)
                 log_btn : bool = False
                 if st.session_state.error:
                     st.warning('Email not found',icon='⚠')
