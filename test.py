@@ -43,6 +43,8 @@ temp_journal : dict = {
         'not_completed' : [],
         'mood' : 0,
         'productivity' : 0,
+        'stress_level' : 0,
+        'social_interaction' : 0,
         'lessons' : '',
         'thankful' : [],
         'sucks' : ''    

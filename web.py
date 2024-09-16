@@ -142,7 +142,7 @@ def agenda_box():
 
     #---LEFT-AGENDA.CONTAINER---
     with cmpltd_col.container(border=True,height=400):
-        st.write(':red-background[Not Completed ❎]')
+        st.write(':red-background[Not Completed❎]')
         if ncmpltd:
             for nid,ntask in enumerate(ncmpltd):
                 if st.checkbox(ntask,key='n'+str(nid),value=False):
@@ -152,7 +152,7 @@ def agenda_box():
             st.text('--Empty--')        
     #---RIGHT-AGENDA.CONTAINER---
     with ncmpltd_col.container(border=True,height=400):
-        st.write(':green-background[Yes Completed ✅]')
+        st.write(':green-background[Yes Completed✅]')
         if cmpltd: 
             for cid,ctask in enumerate(cmpltd):
                 if not st.checkbox(ctask,key='c'+str(cid),value=True):
@@ -184,6 +184,10 @@ def lesson_box() -> None:
     sucks : str = st.session_state.user_journal['sucks']
     add_lessons()
     
+def rate_box() -> None:
+    
+    with st.container(border=True):
+        ...
 
 def homepage() -> None:
     mj : object = ManageJournal(st.session_state.user_id,tstamp_today)
@@ -196,8 +200,7 @@ def homepage() -> None:
     #---JOURNAL-CONTAINER---
     with st.container(border=True,height=600):
         date_col, preview_col = st.columns([3,1])
-        date_col.write(f'Date : {dt.fromtimestamp(tstamp_today).strftime("%d-%m-%Y")}',
-                 anchor=False)
+        date_col.write(f'Date : {dt.fromtimestamp(tstamp_today).strftime("%d-%m-%Y")}')
         if preview_col.button('preview',use_container_width=True):
             journal_preview()
         
@@ -214,7 +217,7 @@ def homepage() -> None:
             lesson_box()
         
         with tab4:
-            ...
+            rate_box()
         
 #--MAIN----
 def main() -> None:
