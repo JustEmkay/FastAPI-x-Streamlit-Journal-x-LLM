@@ -17,11 +17,18 @@ tstamp_today : int  = dt.combine(dt.now(pytz.timezone('Asia/Calcutta')),t.min).t
 
 
 def connect_api() -> bool:
-    r = requests.get(URL_API+'connection')
-    response = r.status_code
-    if response == 200:
-        return r.json()
-    return False
+    try:
+        r = requests.get(URL_API+'connection')
+        response = r.status_code
+        if response == 200:
+            return r.json()
+        return False
+        
+    except requests.ConnectionError:
+        st.error("Connection Error : API not running",icon='❗')
+        if st.button("Retry"):
+            st.rerun()
+        return False
         
 def send_get():
     r = requests.get(URL_API)
@@ -73,12 +80,12 @@ def homepage() -> None:
         st.spinner("Updating journal....")
         time.sleep(2)
         st.rerun()
-    if st.button('rerun'):
-        st.rerun()
+    
+    
 
 def main() -> None:
     
-    st.session_state
+    st.session_state.user_journal
     
     console.print(f'\n[ Executed: [bold magenta]{dt.today().time().strftime("%H:%M:%S")}[/bold magenta] ]')
     st.header('Test FastAPI',anchor=False,divider='rainbow')
