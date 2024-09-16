@@ -3,6 +3,8 @@ import requests,time,pytz
 from datetime import datetime as dt, time as t
 from rich.console import Console
 import bcrypt
+import streamlit.components.v1 as components
+
 
 console = Console()
 
@@ -73,33 +75,116 @@ class ManageJournal:
             return r.json()
         return {}
 
+@st.dialog('Preview')
+def journal_preview() -> None:
+    st.session_state.user_journal  
+
+def add_agenda() -> None:
+    task_col, addBtn_col = st.columns([3,1])
+    new_task : str = task_col.text_input('Task',value='',
+                               label_visibility='collapsed',
+                               placeholder='What you want to accomplish?',
+                               help="Example: Go for a walk")
+    with addBtn_col.popover('options',use_container_width=True):
+        
+        if st.button('Add',use_container_width=True,type='primary') and new_task:
+            st.session_state.user_journal['not_completed'].append(new_task)
+            st.rerun()
+            
+        
+        if st.button('Delete',use_container_width=True,
+                     help=':red-background[Delete all completed task]'):
+            st.session_state.user_journal['completed'] = []
+            st.rerun()
+
+def add_thankful() -> None:
+    thankful_col, add_col = st.columns([3,1])
+    thankful : str = thankful_col.text_input('Thankful',value='',
+                               label_visibility='collapsed',
+                               placeholder='Today, I am thankful for .....',
+                               help="Example: That im still alive 🙏")
+    if add_col.button("add",use_container_width=True,
+                      type='primary') and thankful:
+        st.session_state.user_journal['thankful'].append(thankful)
+        st.rerun()
+
+def add_lessons() -> None:
+    with st.container(border=True):
+        lessons : str = st.text_area("lesssons learned",
+                                     value=st.session_state.user_journal['lessons'],
+                                     label_visibility='collapsed')
+        sucks : str = st.text_input('still sucks',
+                                    value=st.session_state.user_journal['sucks'],
+                                    label_visibility='collapsed')
+        
+        if st.session_state.user_journal['lessons'] and st.session_state.user_journal['sucks']:
+            bttn_name = 'update'
+        else: 
+            bttn_name = 'add'
+        black_col, bttn_col = st.columns([3,1])
+        if bttn_col.button(bttn_name,use_container_width=True,
+                           type='primary',key='lesson_btn'):
+            st.session_state.user_journal['lessons'] = lessons
+            st.session_state.user_journal['sucks'] = sucks
+            time.sleep(1)
+            st.rerun()
+
+def update_agenda(task_action : list ,task_id : int) -> bool:
+    st.session_state.user_journal[task_action[0]].append(st.session_state.user_journal[task_action[1]][task_id])
+    st.session_state.user_journal[task_action[1]].pop(task_id)
+    return True
 
 def agenda_box():
-    task_col, addBtn_col = st.columns([3,1])
-    new_task : str = task_col.text_input('Task',label_visibility='collapsed',
-                               placeholder='What you want to accomplish?',
-                               help="dadaw")
-    with addBtn_col.popover('options',use_container_width=True):
-        if st.button('Add',use_container_width=True,type='primary'):
-            ...
-        if st.button('Delete',use_container_width=True):
-            ...
-    
-    
+    add_agenda()
     cmpltd_col, ncmpltd_col = st.columns(2)
     ncmpltd : list = st.session_state.user_journal['not_completed']
-    ncmpltd : list = st.session_state.user_journal['completed']
+    cmpltd : list = st.session_state.user_journal['completed']
 
     #---LEFT-AGENDA.CONTAINER---
     with cmpltd_col.container(border=True,height=400):
-        st.write(':green-background[Not Completed ✅]')
-        for nid,ntask in enumerate(ncmpltd):
-            ntask
-    
+        st.write(':red-background[Not Completed ❎]')
+        if ncmpltd:
+            for nid,ntask in enumerate(ncmpltd):
+                if st.checkbox(ntask,key='n'+str(nid),value=False):
+                    if update_agenda(['completed','not_completed'],nid):    
+                        st.rerun()
+        else:
+            st.text('--Empty--')        
     #---RIGHT-AGENDA.CONTAINER---
     with ncmpltd_col.container(border=True,height=400):
-        st.write(':red-background[Yes Completed ❎]')
+        st.write(':green-background[Yes Completed ✅]')
+        if cmpltd: 
+            for cid,ctask in enumerate(cmpltd):
+                if not st.checkbox(ctask,key='c'+str(cid),value=True):
+                    if update_agenda(['not_completed','completed'],cid):    
+                        st.rerun()
+        else:
+            st.text('--Empty--') 
     
+def thankful_box() -> None:
+    add_thankful()
+    
+    thankful : dict = st.session_state.user_journal['thankful']
+    
+    with st.container(border=True):
+        if thankful:
+            for idx, thank in enumerate(thankful):
+                if st.checkbox(f'{idx+1}.'+thank,key=idx,value=False):
+                    with st.spinner('delete this note in 3s...'):
+                        time.sleep(3)
+                        st.session_state.user_journal['thankful'].pop(idx)
+                        st.toast(':green-background[Deleted selected thank note]')
+                        time.sleep(1)
+                        st.rerun()
+        else:
+            st.text('--Empty--')
+
+def lesson_box() -> None:
+    lessons : str = st.session_state.user_journal['lessons']
+    sucks : str = st.session_state.user_journal['sucks']
+    add_lessons()
+    
+
 def homepage() -> None:
     mj : object = ManageJournal(st.session_state.user_id,tstamp_today)
     if not st.session_state.user_journal:
@@ -110,13 +195,26 @@ def homepage() -> None:
     
     #---JOURNAL-CONTAINER---
     with st.container(border=True,height=600):
-        st.write(f'Date : {dt.fromtimestamp(tstamp_today).strftime("%d-%m-%Y")}',
+        date_col, preview_col = st.columns([3,1])
+        date_col.write(f'Date : {dt.fromtimestamp(tstamp_today).strftime("%d-%m-%Y")}',
                  anchor=False)
+        if preview_col.button('preview',use_container_width=True):
+            journal_preview()
+        
         tabs : list[str] = ['Agenda','Thankful','Lessons','Rate']
         tab1, tab2, tab3, tab4 = st.tabs(tabs)
         
         with tab1:
             agenda_box()
+        
+        with tab2:
+            thankful_box()
+        
+        with tab3:
+            lesson_box()
+        
+        with tab4:
+            ...
         
 #--MAIN----
 def main() -> None:
@@ -187,3 +285,10 @@ def main() -> None:
     
 if __name__ == "__main__":
     main()
+    components.html("""
+    <script>
+    window.onbeforeunload = function() {
+        return 'Are you sure you want to leave? You might lose unsaved data.';
+    };
+    </script>
+    """, height=0)
