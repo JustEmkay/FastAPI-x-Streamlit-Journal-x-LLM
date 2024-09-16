@@ -73,6 +73,33 @@ class ManageJournal:
             return r.json()
         return {}
 
+
+def agenda_box():
+    task_col, addBtn_col = st.columns([3,1])
+    new_task : str = task_col.text_input('Task',label_visibility='collapsed',
+                               placeholder='What you want to accomplish?',
+                               help="dadaw")
+    with addBtn_col.popover('options',use_container_width=True):
+        if st.button('Add',use_container_width=True,type='primary'):
+            ...
+        if st.button('Delete',use_container_width=True):
+            ...
+    
+    
+    cmpltd_col, ncmpltd_col = st.columns(2)
+    ncmpltd : list = st.session_state.user_journal['not_completed']
+    ncmpltd : list = st.session_state.user_journal['completed']
+
+    #---LEFT-AGENDA.CONTAINER---
+    with cmpltd_col.container(border=True,height=400):
+        st.write(':green-background[Not Completed ✅]')
+        for nid,ntask in enumerate(ncmpltd):
+            ntask
+    
+    #---RIGHT-AGENDA.CONTAINER---
+    with ncmpltd_col.container(border=True,height=400):
+        st.write(':red-background[Yes Completed ❎]')
+    
 def homepage() -> None:
     mj : object = ManageJournal(st.session_state.user_id,tstamp_today)
     if not st.session_state.user_journal:
@@ -81,14 +108,23 @@ def homepage() -> None:
         time.sleep(2)
         st.rerun()
     
-    
-
+    #---JOURNAL-CONTAINER---
+    with st.container(border=True,height=600):
+        st.write(f'Date : {dt.fromtimestamp(tstamp_today).strftime("%d-%m-%Y")}',
+                 anchor=False)
+        tabs : list[str] = ['Agenda','Thankful','Lessons','Rate']
+        tab1, tab2, tab3, tab4 = st.tabs(tabs)
+        
+        with tab1:
+            agenda_box()
+        
+#--MAIN----
 def main() -> None:
     
-    st.session_state.user_journal
+    # st.session_state.user_journal
     
     console.print(f'\n[ Executed: [bold magenta]{dt.today().time().strftime("%H:%M:%S")}[/bold magenta] ]')
-    st.header('Test FastAPI',anchor=False,divider='rainbow')
+    st.header('Journal',anchor=False,divider='rainbow')
     
     if not st.session_state.api_connect:
         with st.status("Sending Request to Server...") as status: 
