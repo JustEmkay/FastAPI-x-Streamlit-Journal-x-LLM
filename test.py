@@ -12,6 +12,9 @@ data : dict = {
         'not_completed' : ['Complete Abyss 12'],
         'mood' : 4,
         'productivity' : 5,
+        'stress_level' : 1,
+        'social_interaction' : 0,
+        'energy_level': 4,
         'lessons' : 'do or die',
         'thankful' : ['Still alive','Having lovely parents'],
         'sucks' : 'waking up at 5 am.'    
@@ -21,6 +24,9 @@ data : dict = {
         'not_completed' : ['Call Juhi'],
         'mood' : 2,
         'productivity' : 2,
+        'stress_level' : 4,
+        'social_interaction' : 1,
+        'energy_level': 1,
         'lessons' : 'do or die',
         'thankful' : ['Still alive','Having lovely parents'],
         'sucks' : 'Same as usual, waking up at 5 am.'    
@@ -30,6 +36,9 @@ data : dict = {
         'not_completed' : ['make Onam Pookalam'],
         'mood' : 4,
         'productivity' : 5,
+        'stress_level' : 0,
+        'social_interaction' : 5,
+        'energy_level': 4,
         'lessons' : 'do or die',
         'thankful' : ['Still alive','Having lovely parents'],
         'sucks' : 'Same Same, waking up at 5 am.'
@@ -45,6 +54,7 @@ temp_journal : dict = {
         'productivity' : 0,
         'stress_level' : 0,
         'social_interaction' : 0,
+        'energy_level': 0,
         'lessons' : '',
         'thankful' : [],
         'sucks' : ''    

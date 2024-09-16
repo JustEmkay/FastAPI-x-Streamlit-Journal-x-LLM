@@ -4,6 +4,7 @@ from datetime import datetime as dt, time as t
 from rich.console import Console
 import bcrypt
 import streamlit.components.v1 as components
+from pages.function.journal_graph import radar_graph
 
 
 console = Console()
@@ -185,9 +186,30 @@ def lesson_box() -> None:
     add_lessons()
     
 def rate_box() -> None:
+    rating_aspects_list : list = [
+                'mood',
+        'productivity',
+        'stress_level',
+        'social_interaction',
+        'energy_level'
+    ]
+    rating_aspects : dict = {}
+    for  ral in rating_aspects_list:
+        if ral in st.session_state.user_journal:
+            rating_aspects.update({ral : st.session_state.user_journal[ral]})
     
-    with st.container(border=True):
-        ...
+    rate_col, graph_col = st.columns([0.4,0.6])
+    # st.session_state.user_journal
+    rate_col.write(rating_aspects)
+    
+    sl : int = rate_col.slider('stress level',min_value=0,
+                         max_value=5,label_visibility='collapsed',
+                         help="ddadawd") 
+    
+    with graph_col.container(border=True):
+        fig = radar_graph(rating_aspects)
+        fig.update_layout(height=400)
+        st.plotly_chart(fig)
 
 def homepage() -> None:
     mj : object = ManageJournal(st.session_state.user_id,tstamp_today)
@@ -198,26 +220,26 @@ def homepage() -> None:
         st.rerun()
     
     #---JOURNAL-CONTAINER---
-    with st.container(border=True,height=600):
-        date_col, preview_col = st.columns([3,1])
-        date_col.write(f'Date : {dt.fromtimestamp(tstamp_today).strftime("%d-%m-%Y")}')
-        if preview_col.button('preview',use_container_width=True):
-            journal_preview()
-        
-        tabs : list[str] = ['Agenda','Thankful','Lessons','Rate']
-        tab1, tab2, tab3, tab4 = st.tabs(tabs)
-        
-        with tab1:
-            agenda_box()
-        
-        with tab2:
-            thankful_box()
-        
-        with tab3:
-            lesson_box()
-        
-        with tab4:
-            rate_box()
+    # with st.container(border=False,height=800):
+    date_col, preview_col = st.columns([3,1])
+    date_col.write(f'Date : {dt.fromtimestamp(tstamp_today).strftime("%d-%m-%Y")}')
+    if preview_col.button('preview',use_container_width=True):
+        journal_preview()
+    
+    tabs : list[str] = ['Agenda','Thankful','Lessons','Rate']
+    tab1, tab2, tab3, tab4 = st.tabs(tabs)
+    
+    with tab1:
+        agenda_box()
+    
+    with tab2:
+        thankful_box()
+    
+    with tab3:
+        lesson_box()
+    
+    with tab4:
+        rate_box()
         
 #--MAIN----
 def main() -> None:
