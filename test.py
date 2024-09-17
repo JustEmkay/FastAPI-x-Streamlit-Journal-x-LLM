@@ -8,7 +8,7 @@ app = FastAPI()
 data : dict = {
     '3cc4505f-3678-414c-b544-e26555728b9c':{
         1726056000 : {
-        'completed' : ['Go for a walk','Call Juhi'],
+        'completed' : ['Go for a walk','Call vasu'],
         'not_completed' : ['Complete Abyss 12'],
         'mood' : 4,
         'productivity' : 5,
@@ -21,7 +21,7 @@ data : dict = {
         },
         1726228800 : {
         'completed' : ['Completed 10000 steps'],
-        'not_completed' : ['Call Juhi'],
+        'not_completed' : ['Call tuttu'],
         'mood' : 2,
         'productivity' : 2,
         'stress_level' : 4,
@@ -80,7 +80,7 @@ class JournalData(BaseModel):
     sucks: str
 
 @app.get("/")
-def read_root():
+async def read_root():
     return {
         'Framework': 'FastAPI',
         'version':'0.111.0',
@@ -88,17 +88,17 @@ def read_root():
             }
 
 @app.get("/connection/")
-def connection():
+async def connection():
     return True
 
 @app.post("/verify/{email}")
-def verify_email(email: str):
+async def verify_email(email: str):
     if email in users_data:
         return False
     return True
 
 @app.post("/validate/{email}/{password}")
-def validate(email : str , password : str):
+async def validate(email : str , password : str):
     user_hash = password.encode('utf-8')
     user_og_hash = users_data[email]['password'].encode()
     result : bool = bcrypt.checkpw(user_hash,user_og_hash)
@@ -134,9 +134,8 @@ def create_journal(uid,tstamp) -> None:
     except Exception as e:
         print(f'Creatte_journal Error:{e}')
 
-
 @app.get("/journal/{uid}/{tstamp}")
-def get_journal(uid : str,tstamp : int):
+async def get_journal(uid : str,tstamp : int):
     if check_id(uid):
         if not check_timestamp(uid,tstamp):
             create_journal(uid,tstamp)
@@ -145,7 +144,7 @@ def get_journal(uid : str,tstamp : int):
     return journal
 
 @app.post("/journal/{uid}/{tstamp}")
-def update_journal(uid : str,tstamp : int, journal_data: JournalData):
+async def update_journal(uid : str,tstamp : int, journal_data: JournalData):
     try:
         data[uid][tstamp] = journal_data 
         journal : dict = data[uid][tstamp]

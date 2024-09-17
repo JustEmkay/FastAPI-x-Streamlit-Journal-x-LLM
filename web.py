@@ -20,6 +20,13 @@ if 'hash_journal' not in st.session_state: st.session_state.hash_journal = None
 
 tstamp_today : int  = int(dt.combine(dt.now(pytz.timezone('Asia/Calcutta')),t.min).timestamp())
 
+rating_aspects_list : list = [
+            'mood',
+    'productivity',
+    'stress_level',
+    'social_interaction',
+    'energy_level'
+]
 
 def connect_api() -> bool:
     try:
@@ -108,10 +115,46 @@ class ManageJournal:
         if response == 200:
             return r.json()
         
-@st.dialog('Preview')
 def journal_preview() -> None:
-    st.session_state.user_journal  
+    with st.container(border=True):
+        date_col, preview_col = st.columns([3,1],vertical_alignment='top')
+        date_col.write(f'**Date:** :green[{dt.fromtimestamp(tstamp_today).strftime("%d-%m-%Y")}]')
+    
+    col1, col2 = st.columns([2,2]) 
+    
+    # agendas
+    with col1.container(border=True,height=300):
+        st.write("""**Today's Agendas:**""")
+        counter : int = 0
+        for i in st.session_state.user_journal['not_completed']:
+            counter += 1
+            st.markdown(f"""{counter}. {i}""")
+            
+        for j in st.session_state.user_journal['completed']:
+            counter +=1
+            st.markdown(f"""{counter}. :grey[~{j}~]""")
+        counter = 0
+    
+    with col2.container(border=True,height=300):
+        
+        scale : list = ['worst', 'poor', 'average', 'good', 'excellent']
+        
+        st.markdown("""**Rating:**""")
+        for l in rating_aspects_list:
+            if l in st.session_state.user_journal:
+                st.markdown(f"""* {l}  :grey[{scale[st.session_state.user_journal[l]]}]""")
 
+    # thankful
+    with st.container(border=True):
+        st.markdown("""**Today, I'm Thankful for...**""")
+        for k in st.session_state.user_journal['thankful']:
+            st.markdown(f"""* {k}""")
+    
+    # lesson & s*cks
+    with st.container(border=True):
+        st.markdown(f"""**Today's Lesson :** {st.session_state.user_journal['lessons']}
+                    \n **One thing I did that sucked:** {st.session_state.user_journal['sucks']}""")
+    
 def add_agenda() -> None:
     task_col, addBtn_col = st.columns([3,1])
     new_task : str = task_col.text_input('Task',value='',
@@ -142,7 +185,7 @@ def add_thankful() -> None:
         st.rerun()
 
 def add_lessons() -> None:
-    with st.container(border=True,height=400):
+    with st.container(border=True,height=500):
         if not st.session_state.user_journal['lessons']:
             lessons : str = st.text_area("Today's lessons ?",
                                         value=st.session_state.user_journal['lessons'],
@@ -211,7 +254,7 @@ def thankful_box() -> None:
     
     thankful : dict = st.session_state.user_journal['thankful']
     
-    with st.container(border=True):
+    with st.container(border=True,height=430):
         if thankful:
             for idx, thank in enumerate(thankful):
                 if st.checkbox(f'{idx+1}.'+thank,key=idx,value=False):
@@ -231,13 +274,6 @@ def lesson_box() -> None:
     
 def rate_box() -> None:
     
-    rating_aspects_list : list = [
-                'mood',
-        'productivity',
-        'stress_level',
-        'social_interaction',
-        'energy_level'
-    ]
     rating_aspects : dict = {}
     for  ral in rating_aspects_list:
         if ral in st.session_state.user_journal:
@@ -295,31 +331,27 @@ def homepage() -> None:
         st.rerun()
     
     #---JOURNAL-CONTAINER---
-    # with st.container(border=False,height=800):
-    date_col, preview_col = st.columns([3,1])
-    date_col.write(f'Date : {dt.fromtimestamp(tstamp_today).strftime("%d-%m-%Y")}')
-    if preview_col.button('preview',use_container_width=True):
-        journal_preview()
-    
-    tabs : list[str] = ['Agenda','Thankful','Lessons','Rate']
-    tab1, tab2, tab3, tab4 = st.tabs(tabs)
+
+    tabs : list[str] = ['Preview','Agenda','Thankful','Lessons','Rate']
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(tabs)
     
     with tab1:
-        agenda_box()
+        journal_preview()
     
     with tab2:
-        thankful_box()
+        agenda_box()
     
     with tab3:
-        lesson_box()
+        thankful_box()
     
     with tab4:
+        lesson_box()
+    
+    with tab5:
         rate_box()
         
     if st.session_state.hash_journal != data_hashing(st.session_state.user_journal):
-        print('old hash:',st.session_state.hash_journal)
-        print('new hash:',data_hashing(st.session_state.user_journal))
-        
+
         result = mj.update_data(st.session_state.user_journal)
         if result['status']:
             st.session_state.user_journal = result['data']
@@ -337,7 +369,7 @@ def main() -> None:
     # st.session_state.user_journal
     
     console.print(f'\n[ Executed: [bold magenta]{dt.today().time().strftime("%H:%M:%S")}[/bold magenta] ]')
-    st.header('Journal',anchor=False,divider='rainbow')
+    st.title('Journal',anchor=False)
     
     if not st.session_state.api_connect:
         with st.status("Sending Request to Server...") as status: 
