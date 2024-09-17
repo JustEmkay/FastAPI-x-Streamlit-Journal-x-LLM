@@ -1,5 +1,5 @@
-from typing import Union
 from fastapi import FastAPI
+from pydantic import BaseModel
 import bcrypt
 
 app = FastAPI()
@@ -67,6 +67,17 @@ users_data : dict = {
     }
 }
 
+class JournalData(BaseModel):
+    completed: list
+    not_completed: list
+    mood: int
+    productivity: int
+    stress_level: int
+    social_interaction: int
+    energy_level: int
+    lessons: str
+    thankful: list
+    sucks: str
 
 @app.get("/")
 def read_root():
@@ -132,3 +143,15 @@ def get_journal(uid : str,tstamp : int):
             
     journal : dict = data[uid][tstamp]
     return journal
+
+@app.post("/journal/{uid}/{tstamp}")
+def update_journal(uid : str,tstamp : int, journal_data: JournalData):
+    try:
+        data[uid][tstamp] = journal_data 
+        journal : dict = data[uid][tstamp]
+        status : bool = True
+        return {'status':status,'data':journal}
+    except:
+        status : bool = False
+        return {'status':status,'data':journal}
+    

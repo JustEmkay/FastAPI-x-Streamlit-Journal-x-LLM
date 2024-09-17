@@ -2,7 +2,7 @@ import streamlit as st
 import requests,time,pytz
 from datetime import datetime as dt, time as t
 from rich.console import Console
-import bcrypt
+import bcrypt,hashlib,json
 import streamlit.components.v1 as components
 from pages.function.journal_graph import radar_graph
 
@@ -16,7 +16,9 @@ if 'error' not in st.session_state: st.session_state.error = False
 if 'auth' not in st.session_state: st.session_state.auth = False
 if 'user_id' not in st.session_state: st.session_state.user_id = None
 if 'user_journal' not in st.session_state: st.session_state.user_journal = None
-tstamp_today : int  = dt.combine(dt.now(pytz.timezone('Asia/Calcutta')),t.min).timestamp()
+if 'hash_journal' not in st.session_state: st.session_state.hash_journal = None
+
+tstamp_today : int  = int(dt.combine(dt.now(pytz.timezone('Asia/Calcutta')),t.min).timestamp())
 
 
 def connect_api() -> bool:
@@ -55,8 +57,31 @@ def pass_hashing(password : str) -> str:
     print("pass:",hash)
     return hash
 
-def data_hashing() -> str:
-    ...
+def data_hashing(data) -> str:
+    """
+    Get complex dictionaries and return Hash.
+
+    Args:
+        data (dict): dictionary.
+
+    Returns:
+        Hash value of dictionary.
+        
+    Example:
+        data (str) = {
+    'name' : 'emkay',
+    'gender' : 'male',
+    'hobbies' : ['scrabbling','gaming'],
+    }
+    
+    output:
+        0679b5848c062ab23a34a35f78b96833
+        
+    """
+    
+    dict_string = json.dumps(data, sort_keys=True).encode('utf-8')
+    dict_hash = hashlib.md5(dict_string).hexdigest()
+    return dict_hash
  
 def login_req(username,password) -> dict:
     r = requests.post(URL_API+f'validate/{username}/{password}')
@@ -75,7 +100,14 @@ class ManageJournal:
         if response == 200:
             return r.json()
         return {}
-
+    
+    def update_data(self,data) -> dict:
+        r = requests.post(URL_API+f'journal/{self.id}/{self.timestmp}',
+                          json=data)
+        response = r.status_code
+        if response == 200:
+            return r.json()
+        
 @st.dialog('Preview')
 def journal_preview() -> None:
     st.session_state.user_journal  
@@ -110,19 +142,31 @@ def add_thankful() -> None:
         st.rerun()
 
 def add_lessons() -> None:
-    with st.container(border=True):
-        lessons : str = st.text_area("lesssons learned",
-                                     value=st.session_state.user_journal['lessons'],
-                                     label_visibility='collapsed')
-        sucks : str = st.text_input('still sucks',
-                                    value=st.session_state.user_journal['sucks'],
-                                    label_visibility='collapsed')
-        
-        if st.session_state.user_journal['lessons'] and st.session_state.user_journal['sucks']:
-            bttn_name = 'update'
-        else: 
+    with st.container(border=True,height=400):
+        if not st.session_state.user_journal['lessons']:
+            lessons : str = st.text_area("Today's lessons ?",
+                                        value=st.session_state.user_journal['lessons'],
+                                        label_visibility='visible')
             bttn_name = 'add'
-        black_col, bttn_col = st.columns([3,1])
+        else:
+            st.write(st.session_state.user_journal['lessons'])
+            bttn_name = 'update'
+            
+        if not st.session_state.user_journal['lessons']:   
+            sucks : str = st.text_input('One thing I did that sucked:',
+                                    value=st.session_state.user_journal['sucks'],
+                                    label_visibility='visible')
+        else:
+            st.write(st.session_state.user_journal['sucks'])
+            bttn_name = 'update'
+            
+        black_col,clear_bttn, bttn_col = st.columns([2,1,1])
+        if clear_bttn.button('clear',use_container_width=True):
+            st.session_state.user_journal['lessons'] = ''
+            st.session_state.user_journal['sucks'] = ''
+            time.sleep(1)
+            st.rerun()
+
         if bttn_col.button(bttn_name,use_container_width=True,
                            type='primary',key='lesson_btn'):
             st.session_state.user_journal['lessons'] = lessons
@@ -186,6 +230,7 @@ def lesson_box() -> None:
     add_lessons()
     
 def rate_box() -> None:
+    
     rating_aspects_list : list = [
                 'mood',
         'productivity',
@@ -199,22 +244,52 @@ def rate_box() -> None:
             rating_aspects.update({ral : st.session_state.user_journal[ral]})
     
     rate_col, graph_col = st.columns([0.4,0.6])
-    # st.session_state.user_journal
-    rate_col.write(rating_aspects)
-    
-    sl : int = rate_col.slider('stress level',min_value=0,
-                         max_value=5,label_visibility='collapsed',
+
+    md : int = rate_col.slider('Mood',min_value=0,
+                        value=rating_aspects[rating_aspects_list[0]],
+                         max_value=5,label_visibility='visible',
                          help="ddadawd") 
     
-    with graph_col.container(border=True):
+    prod : int = rate_col.slider('Productivity',min_value=0,
+                        value=rating_aspects[rating_aspects_list[1]],
+                        max_value=5,label_visibility='visible',
+                        help="ddadawd") 
+    
+    
+    sl : int = rate_col.slider('Stress level',min_value=0,
+                        value=rating_aspects[rating_aspects_list[2]],
+                         max_value=5,label_visibility='visible',
+                         help="ddadawd") 
+    
+    si : int = rate_col.slider('Social Interaction',min_value=0,
+                        value=rating_aspects[rating_aspects_list[3]],
+                         max_value=5,label_visibility='visible',
+                         help="ddadawd") 
+    
+    el : int = rate_col.slider('Energy level',min_value=0,
+                        value=rating_aspects[rating_aspects_list[4]],                               
+                         max_value=5,label_visibility='visible',
+                         help="ddadawd") 
+        
+    with graph_col.container(border=True,height=500):
         fig = radar_graph(rating_aspects)
         fig.update_layout(height=400)
         st.plotly_chart(fig)
+
+    new_aspects : list = [md,prod,sl,si,el]
+    
+    for  idx, aspect in enumerate(rating_aspects_list):
+        if st.session_state.user_journal[aspect] != new_aspects[idx]:
+            st.session_state.user_journal.update({aspect:new_aspects[idx]})
+            st.toast(f'updated :green[**{aspect}**]')
+            time.sleep(0.5)
+            st.rerun()
 
 def homepage() -> None:
     mj : object = ManageJournal(st.session_state.user_id,tstamp_today)
     if not st.session_state.user_journal:
         st.session_state.user_journal = mj.load_data()
+        st.session_state.hash_journal = data_hashing(st.session_state.user_journal)
         st.spinner("Updating journal....")
         time.sleep(2)
         st.rerun()
@@ -241,6 +316,21 @@ def homepage() -> None:
     with tab4:
         rate_box()
         
+    if st.session_state.hash_journal != data_hashing(st.session_state.user_journal):
+        print('old hash:',st.session_state.hash_journal)
+        print('new hash:',data_hashing(st.session_state.user_journal))
+        
+        result = mj.update_data(st.session_state.user_journal)
+        if result['status']:
+            st.session_state.user_journal = result['data']
+            st.session_state.hash_journal = data_hashing(result['data'])
+            st.toast(":green[Change applied to Database]")
+            st.rerun()   
+        else:
+            st.toast(":red[Failed to update to Database]")
+    
+    
+    
 #--MAIN----
 def main() -> None:
     
@@ -270,7 +360,8 @@ def main() -> None:
             st.error('Failed Connection to API',icon='🚫')
 
     else:
-        st.success('Connection to API successful',icon='✔')
+        with st.sidebar:
+            st.success('Connection to API successful',icon='✔')
         
         if st.session_state.auth and st.session_state.user_id:
             
