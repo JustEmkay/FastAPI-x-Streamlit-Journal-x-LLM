@@ -11,6 +11,13 @@ console = Console()
 
 URL_API : str = "http://127.0.0.1:8000/"
 
+st.set_page_config(
+    page_title="journal",
+    page_icon="📑",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
+
 if 'api_connect' not in st.session_state: st.session_state.api_connect = False
 if 'error' not in st.session_state: st.session_state.error = False
 if 'auth' not in st.session_state: st.session_state.auth = False
@@ -19,6 +26,7 @@ if 'user_journal' not in st.session_state: st.session_state.user_journal = None
 if 'hash_journal' not in st.session_state: st.session_state.hash_journal = None
 
 tstamp_today : int  = int(dt.combine(dt.now(pytz.timezone('Asia/Calcutta')),t.min).timestamp())
+
 
 rating_aspects_list : list = [
             'mood',
@@ -95,6 +103,32 @@ def login_req(username,password) -> dict:
     response = r.status_code
     if response == 200:
         return r.json()
+
+@st.dialog('Register your account')
+def register_account() -> None:
+    with st.form('user signup'):
+        uname : str = st.text_input("Enter your username:",
+                                    placeholder='Example: Vasu Annan')
+        email : str = st.text_input("Enter your email:",
+                                    placeholder='Example: vasu69@hotmail.com')
+        pwsd : str = st.text_input("create new password:", type='password',
+                                    placeholder='Example: Vasu@gojo')
+        re_pwsd : str = st.text_input("re-enter the password:", type='password',
+                                    placeholder='Example: Vasu@gojo')
+        
+        if st.form_submit_button('Submit',use_container_width=True,):
+            
+            if not uname:
+                st.warning(f"Please enter your name!",icon='🙏')
+            elif not email:
+                st.warning(f"Please enter your name!",icon='🙏')
+            elif not pwsd or not re_pwsd:
+                st.warning(f"Passwooordddd Pleeeeease!",icon='🙏')
+            elif pwsd != re_pwsd:
+                st.warning(f"**{uname}**, Please check your memory and Re-Enter both passwords !",icon='😐')
+            else:
+                ...
+
 
 class ManageJournal:
     def __init__(self,user_id,tstamp_today) -> None:
@@ -418,7 +452,8 @@ def main() -> None:
                 
                 blank_col,reg_col,log_col = st.columns([2,1,1])
                 if reg_col.button('register',use_container_width=True):
-                    ...
+                    register_account()
+                    
                 if log_col.button('login',use_container_width=True,
                                 type='primary',disabled=log_btn):
                     if username and password:
