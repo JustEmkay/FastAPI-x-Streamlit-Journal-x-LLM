@@ -1,9 +1,8 @@
-import plotly.graph_objects as go
+import calplot
 import matplotlib.pyplot as plt
 import pandas as pd
 import calplot
 from datetime import datetime as dt
-
 
 test_data : dict = {
     '3cc4505f-3678-414c-b544-e26555728b9c':{
@@ -48,43 +47,6 @@ test_data : dict = {
                 }
 
 id = '3cc4505f-3678-414c-b544-e26555728b9c'
-
-
-
-
-def radar_graph(kwargs):
-    """
-    input rating as dict and return Radar graph
-    
-    """
-    
-    labels = list(kwargs.keys())
-    ratings = list(kwargs.values())
-
-    ratings += ratings[:1]
-    labels += labels[:1]
-
-    fig = go.Figure(
-        data=[
-            go.Scatterpolar(
-                r=ratings,
-                theta=labels,
-                fill='toself',
-                name='Ratings',
-                line=dict(color='blue')
-            )
-        ],
-        layout=go.Layout(
-            polar=dict(
-                radialaxis=dict(visible=True, range=[0, 5])
-            ),
-            showlegend=False
-        )
-    )
-
-    # Display the chart in Streamlit
-    return fig
-
 
 crrnt_yr = dt.now().year
 start_date = dt(crrnt_yr,1,1,0,0,0)
@@ -137,5 +99,8 @@ def cal_heatmap(data : str,id : str):
 
     series = pd.Series(active_day, index=days)
     calplot.calplot(series, cmap='YlGn', colorbar=True)
+    st.pyplot(plt)
     
-    return plt
+    
+if __name__ == "__main__":    
+    cal_heatmap(test_data,id)
