@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import bcrypt
+import uuid
 
 app = FastAPI()
 # uvicorn test:app --reload
@@ -81,6 +82,16 @@ class JournalData(BaseModel):
     thankful: list
     sucks: str
 
+class RegisterData(BaseModel):
+    username: str
+    email: str
+    dob: int
+    password: str
+
+def idgen():
+    unique_id = uuid.uuid4()
+    return unique_id
+
 @app.get("/")
 async def read_root():
     return {
@@ -107,7 +118,6 @@ async def verify_username(uname: str):
         return True
     return False
 
-
 @app.post("/validate/{email}/{password}")
 async def validate(email : str , password : str):
     user_hash = password.encode('utf-8')
@@ -124,6 +134,22 @@ async def validate(email : str , password : str):
             'auth':False,
             'user_id': None
             }
+
+@app.post("/register")
+async def validate(register_data : RegisterData):
+    try:  
+        users_data.update({
+            register_data.username : {
+                'id' : idgen(),
+                'email': register_data.email,
+                'dob' : register_data.dob,
+                'password' : register_data.password
+            }
+        })
+        return {'status':True}
+    except Exception as e:
+        return {'status':False , 'error': e}
+         
 
 def check_id(uid) -> bool:
     if data[uid]:

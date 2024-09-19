@@ -68,9 +68,8 @@ def pass_hashing(password : str) -> str:
     bytes = password.encode('utf-8') 
     salt = bcrypt.gensalt()
     hash = bcrypt.hashpw(bytes, salt) 
-    
-    print("pass:",hash)
-    return hash
+
+    return hash.decode('utf-8')
 
 def data_hashing(data) -> str:
     """
@@ -140,9 +139,28 @@ class Register:
                 return {'status': True }
   
     def validate_password(self) -> str:
-        error : str = ''
-        return {'status': True , 'error' : None }
-
+        
+        if self.pswd == self.rpswd:
+            return {'status': True , 'error' : None }
+        elif not self.pswd:
+            return {'status': False , 'error' : 'Please create a password' }
+        elif not self.rpswd:
+            return {'status': False , 'error' : 'Please re-enter new password' }
+        else:
+            return {'status': False , 'error' : 'Passwords not same' }
+        
+    def register_user(self) -> dict:
+        temp_user :dict = {
+                "username" : self.uname,     
+                "email" : self.email,
+                "dob": Register.dob_to_timestamp(self),
+                "password": pass_hashing(self.pswd)
+            
+        }
+        r = requests.post(URL_API+'register',json=temp_user)
+        response = r.status_code
+        if response == 200:
+            return r.json()
     
 
 
@@ -164,10 +182,9 @@ def register_account() -> None:
                                     placeholder='Example: Vasu@gojo')
         re_pwsd : str = st.text_input("re-enter the password:", type='password',
                                     placeholder='Example: Vasu@gojo')
-        error_pwsd = st.empty( )
+        error_pwsd = st.empty()
         
         r = Register(uname,email,dob,pwsd,re_pwsd)
-        
         if st.form_submit_button('Submit',use_container_width=True,type='primary'):
             
             u_val = r.validate_username()
@@ -182,8 +199,12 @@ def register_account() -> None:
             if not p_val['status']:
                 error_pwsd.warning(p_val['error'],icon='⚠')
             
-            
-            
+            if u_val['status'] and e_val['status'] and p_val['status']:
+                r_resp = r.register_user()
+                if not r_resp['status']:
+                  st.error(f"Error : {r_resp['error']}")
+                else:
+                    st.success("Registration Sccessful")  
 
 class ManageJournal:
     def __init__(self,user_id,tstamp_today) -> None:

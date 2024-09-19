@@ -5,19 +5,11 @@ import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-def passgen():  
-    # example password 
-    password = '123'
-    
-    # converting password to array of bytes 
+def passgen():   
+    password = '123' 
     bytes = password.encode('utf-8') 
-    
-    # generating the salt 
     salt = bcrypt.gensalt() 
-    
-    # Hashing the password 
     hash = bcrypt.hashpw(bytes, salt) 
-    
     print("pass:",hash)
     
 def idgen():
