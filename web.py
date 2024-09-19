@@ -14,7 +14,7 @@ URL_API : str = "http://127.0.0.1:8000/"
 st.set_page_config(
     page_title="journal",
     page_icon="📑",
-    layout="wide",
+    layout="centered",
     initial_sidebar_state="collapsed",
 )
 
@@ -58,7 +58,7 @@ def send_get():
     return 'error occured'
 
 def verify_email(username) -> bool:
-    r = requests.post(URL_API+f'verify/{username}')
+    r = requests.post(URL_API+f'verify/user/{username}')
     response = r.status_code
     if response == 200:
         st.session_state.error = r.json()
@@ -104,31 +104,86 @@ def login_req(username,password) -> dict:
     if response == 200:
         return r.json()
 
+
+class Register:
+    def __init__(self,uname,email,dob,password,re_password) -> None:
+        self.uname = uname
+        self.email = email
+        self.dob = dob
+        self.pswd = password
+        self.rpswd = re_password
+    
+    def dob_to_timestamp(self) -> int:
+        d_timestamp=int(dt(self.dob.year,self.dob.month,self.dob.day).timestamp())
+        return d_timestamp
+    
+    def validate_username(self) -> dict:
+        if not self.uname:
+            return {'status': False, 'error': 'cant leave blank'} 
+        r = requests.post(URL_API+f'verify/user/{self.uname}')
+        response = r.status_code
+        if response == 200:
+            if not r.json():
+                return {'status': False , 'error' : ':red[Username used by someone else]. Please change it' }
+            else:
+                return {'status': True }
+    
+    def validate_email(self) -> dict:
+        if not self.email:
+            return {'status': False, 'error': 'cant leave blank'} 
+        r = requests.post(URL_API+f'verify/user/{self.email}')
+        response = r.status_code
+        if response == 200:
+            if not r.json():
+                return {'status': False , 'error' : ':red[Email already in use.] Please login using it.' }
+            else:
+                return {'status': True }
+  
+    def validate_password(self) -> str:
+        error : str = ''
+        return {'status': True , 'error' : None }
+
+    
+
+
 @st.dialog('Register your account')
 def register_account() -> None:
     with st.form('user signup'):
         uname : str = st.text_input("Enter your username:",
                                     placeholder='Example: Vasu Annan')
+        error_uname = st.empty()
+           
         email : str = st.text_input("Enter your email:",
                                     placeholder='Example: vasu69@hotmail.com')
+        error_email = st.empty()
+        
+        dob  = st.date_input("Select your dob:",min_value=dt(1940, 1, 1))
+        
+        
         pwsd : str = st.text_input("create new password:", type='password',
                                     placeholder='Example: Vasu@gojo')
         re_pwsd : str = st.text_input("re-enter the password:", type='password',
                                     placeholder='Example: Vasu@gojo')
+        error_pwsd = st.empty( )
         
-        if st.form_submit_button('Submit',use_container_width=True,):
+        r = Register(uname,email,dob,pwsd,re_pwsd)
+        
+        if st.form_submit_button('Submit',use_container_width=True,type='primary'):
             
-            if not uname:
-                st.warning(f"Please enter your name!",icon='🙏')
-            elif not email:
-                st.warning(f"Please enter your name!",icon='🙏')
-            elif not pwsd or not re_pwsd:
-                st.warning(f"Passwooordddd Pleeeeease!",icon='🙏')
-            elif pwsd != re_pwsd:
-                st.warning(f"**{uname}**, Please check your memory and Re-Enter both passwords !",icon='😐')
-            else:
-                ...
-
+            u_val = r.validate_username()
+            if not u_val['status']:
+                error_uname.warning(u_val['error'],icon='⚠')
+            
+            e_val = r.validate_email()
+            if not e_val['status']:
+                error_email.warning(e_val['error'],icon='⚠')
+            
+            p_val = r.validate_password()
+            if not p_val['status']:
+                error_pwsd.warning(p_val['error'],icon='⚠')
+            
+            
+            
 
 class ManageJournal:
     def __init__(self,user_id,tstamp_today) -> None:

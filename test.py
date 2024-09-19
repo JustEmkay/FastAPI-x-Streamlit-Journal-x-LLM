@@ -61,7 +61,9 @@ temp_journal : dict = {
         }
 
 users_data : dict = {
-    '123@gmail.com' : {
+    '123' : {
+        'email' : '123@gmail.com',
+        'dob' : 976579200000,
         'id': '3cc4505f-3678-414c-b544-e26555728b9c',
         'password': '$2b$12$buI43Y8ggvWzgTyqlLoBxupe/ojPEEKbV/mAofu7pCs/JGQWqn.9G'
     }
@@ -91,11 +93,20 @@ async def read_root():
 async def connection():
     return True
 
-@app.post("/verify/{email}")
-async def verify_email(email: str):
-    if email in users_data:
+@app.post("/verify/user/{userinput}")
+async def verify_user(userinput: str):
+    ud = users_data.keys()
+    emails = [users_data[i]['email'] for i in ud]
+    if userinput in ud or userinput in emails:
         return False
     return True
+
+@app.post("/verify/username/{uname}")
+async def verify_username(uname: str):
+    if uname in users_data:
+        return True
+    return False
+
 
 @app.post("/validate/{email}/{password}")
 async def validate(email : str , password : str):
