@@ -99,6 +99,16 @@ async def read_root():
         'version':'0.111.0',
         'author':'JustEmkay'
             }
+    
+@app.get("/admin/{password}")
+async def show_everything(password : str):
+    if password == '123':
+        return {'users_data' : users_data,
+            'journals' : data
+            }
+    return{
+        'data' : None
+    }
 
 @app.get("/connection/")
 async def connection():
@@ -135,22 +145,30 @@ async def validate(email : str , password : str):
             'user_id': None
             }
 
-@app.post("/register")
-async def validate(register_data : RegisterData):
-    try:  
+@app.post("/register/{tstamp}")
+async def validate(tstamp : int ,register_data : RegisterData):
+    try:
+        new_id : str = idgen()  
         users_data.update({
             register_data.username : {
-                'id' : idgen(),
+                'id' : new_id,
                 'email': register_data.email,
                 'dob' : register_data.dob,
                 'password' : register_data.password
             }
         })
+        
+        data.update({
+            new_id : {
+                tstamp : temp_journal
+            }
+        })
+        
         return {'status':True}
+    
     except Exception as e:
         return {'status':False , 'error': e}
          
-
 def check_id(uid) -> bool:
     if data[uid]:
         return True

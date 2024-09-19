@@ -157,7 +157,7 @@ class Register:
                 "password": pass_hashing(self.pswd)
             
         }
-        r = requests.post(URL_API+'register',json=temp_user)
+        r = requests.post(URL_API+f'register/{tstamp_today}',json=temp_user)
         response = r.status_code
         if response == 200:
             return r.json()
