@@ -163,7 +163,6 @@ class Register:
             return r.json()
     
 
-
 @st.dialog('Register your account')
 def register_account() -> None:
     with st.form('user signup'):
@@ -511,6 +510,7 @@ def main() -> None:
             
         else:
             #login form
+            st.session_state
             with st.container(border=True):
                 st.subheader('Login',anchor=False,divider=True)
                 username =st.text_input("Username:",
