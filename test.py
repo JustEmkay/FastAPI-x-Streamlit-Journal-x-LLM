@@ -70,9 +70,10 @@ def retrive_data(path) -> dict:
         return d
 
 def update_data(path,data) -> dict:
-    check_file_exists()
-    with open(path,'w') as f:
-        json.dump(data,f)
+    if data:
+        check_file_exists()
+        with open(path,'w') as f:
+            json.dump(data,f)
 
 check_file_exists() #<- check DB exist 
 
@@ -183,7 +184,7 @@ async def show_everything(password : str):
         'data' : None
     }
 
-@app.get("/connection/")
+@app.get("/connection")
 async def connection():
     return True
 
@@ -206,21 +207,29 @@ async def verify_username(uname: str):
 @app.post("/validate/{user_input}/{password}")
 async def validate(user_input : str , password : str):
     
-    ud = users_data.keys() # <- username as key 
-    emails = [users_data[i]['email'] for i in ud]
+    ud : list = list (users_data.keys())
+    emails : list = [users_data[i]['email'] for i in ud]
+    
     if user_input in ud:
-        user_input_un = users_data[user_input]
+        slct_username : str = user_input 
     else:
-        user_input_un = users_data[ud[emails.index(user_input)]]["email"]
+        if user_input in emails:
+            e_indx : int = emails.index(user_input)
+            slct_username : str = ud[e_indx]  
+        else:
+            return {
+                'auth':False,
+                'user_id': None
+                }
     
     user_hash = password.encode('utf-8')
-    user_og_hash = users_data[user_input_un]['password'].encode()
+    user_og_hash = users_data[slct_username]['password'].encode()
     result : bool = bcrypt.checkpw(user_hash,user_og_hash)
     if result:
-        print(f'id:{users_data[user_input_un]["id"]}')
+        print(f'id:{users_data[slct_username]["id"]}')
         return {
             'auth': True ,
-            'user_id':f'{users_data[user_input_un]["id"]}'
+            'user_id':f'{users_data[slct_username]["id"]}'
             }
     else:
         return {
@@ -229,7 +238,7 @@ async def validate(user_input : str , password : str):
             }
 
 @app.post("/register/{tstamp}")
-async def validate(tstamp : int ,register_data : RegisterData):
+async def validate(tstamp : str ,register_data : RegisterData):
     try:
         new_id : str = idgen()  
         users_data.update({
@@ -258,51 +267,58 @@ async def validate(tstamp : int ,register_data : RegisterData):
     except Exception as e:
         return {'status':False , 'error': e}
          
-def check_id(uid) -> bool:
-    if data[uid]:
-        return True
-    return False
-
-def check_timestamp(uid,tstamp) -> bool:
-    if tstamp in data[uid].keys():
-        return True
-    return False
 
 def create_journal(uid,tstamp) -> None:
     try:
-        data.update({
-            uid : {
-            tstamp : temp_journal
-            }
-            })
+        data[uid].update({int(tstamp) : temp_journal})
+        update_data(PATHS[1],data) #<-- update to JSON file
+        # data = retrive_data(PATHS[1])
         
+    except Exception as e:
+        print(f'Create_journal Error:{e}')
+
+@app.get("/journal/{uid}/{tstamp}")
+async def get_journal(uid : str,tstamp : str):
+    data = retrive_data(PATHS[1])
+    
+    if uid in data:
+        if tstamp in data[uid]:
+            return data[uid][tstamp]
+        
+    create_journal(uid,tstamp)
+    data = retrive_data(PATHS[1])
+    return data[uid][tstamp]
+
+
+@app.post("/journal/{uid}/{tstamp}")
+async def update_journal(uid : str,tstamp : str, journal_data: JournalData):
+    try:
+        data = retrive_data(PATHS[1])
+        data[uid].update({
+            tstamp:{
+                    "completed": journal_data.completed,
+                    "not_completed": journal_data.not_completed,
+                    "mood": journal_data.mood,
+                    "productivity": journal_data.productivity,
+                    "stress_level": journal_data.stress_level,
+                    "social_interaction": journal_data.social_interaction,
+                    "energy_level": journal_data.energy_level,
+                    "lessons": journal_data.lessons,
+                    "thankful": journal_data.thankful,
+                    "sucks": journal_data.sucks
+                    }
+                })
+         
         update_data(PATHS[1],data) #<-- update to JSON file
         data = retrive_data(PATHS[1])
         
-    except Exception as e:
-        print(f'Creatte_journal Error:{e}')
-
-@app.get("/journal/{uid}/{tstamp}")
-async def get_journal(uid : str,tstamp : int):
-    if check_id(uid):
-        if not check_timestamp(uid,tstamp):
-            create_journal(uid,tstamp)
-            
-    journal : dict = data[uid][tstamp]
-    return journal
-
-@app.post("/journal/{uid}/{tstamp}")
-async def update_journal(uid : str,tstamp : int, journal_data: JournalData):
-    try:
-        data[uid][tstamp] = journal_data 
         journal : dict = data[uid][tstamp]
         status : bool = True
         
-        update_data(PATHS[1],data) #<-- update to JSON file
-        data = retrive_data(PATHS[1])
-        
         return {'status':status,'data':journal}
-    except:
+    except Exception as e:
+        print(f"Error : {e}")
         status : bool = False
         return {'status':status,'data':journal}
+    
     

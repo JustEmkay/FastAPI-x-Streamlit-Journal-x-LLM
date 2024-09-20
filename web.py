@@ -513,10 +513,10 @@ def main() -> None:
             st.session_state
             with st.container(border=True):
                 st.subheader('Login',anchor=False,divider=True)
-                username =st.text_input("Username:",
+                username =st.text_input("Username:",value=123,
                                             placeholder="Enter your username",
                                             label_visibility='collapsed')
-                password : str =st.text_input("Password:",
+                password : str =st.text_input("Password:",value=123,
                                             placeholder="Enter your password",
                                             label_visibility='collapsed',
                                             type='password')
