@@ -274,9 +274,9 @@ async def validate(tstamp : str ,register_data : RegisterData):
  
 def create_journal(uid,tstamp) -> None:
     try:
-        data[uid].update({int(tstamp) : temp_journal})
+        data = retrive_data(PATHS[1])    
+        data[uid].update({str(tstamp) : temp_journal})
         update_data(PATHS[1],data) #<-- update to JSON file
-        # data = retrive_data(PATHS[1])
         
     except Exception as e:
         print(f'Create_journal Error:{e}')
@@ -298,6 +298,9 @@ async def get_journal(uid : str,tstamp : str):
 async def update_journal(uid : str,tstamp : str, journal_data: JournalData):
     try:
         data = retrive_data(PATHS[1])
+        print("\nbefore data: ",data)
+        
+        
         data[uid].update({
             tstamp:{
                     "completed": journal_data.completed,
@@ -315,6 +318,8 @@ async def update_journal(uid : str,tstamp : str, journal_data: JournalData):
          
         update_data(PATHS[1],data) #<-- update to JSON file
         data = retrive_data(PATHS[1])
+        
+        print("\nafter data: ",data)
         
         journal : dict = data[uid][tstamp]
         status : bool = True
