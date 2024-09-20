@@ -9,7 +9,7 @@ st.set_page_config(
 
 def main()->None:
     st.title("Logout",anchor=False)
-    # with st.container(border=True,height=300):
+    
     st.divider()
     if 'auth' not in st.session_state:
         st.switch_page('web.py')
@@ -17,7 +17,6 @@ def main()->None:
         st.markdown("### Are you sure?")
         st.caption('Do you want to logout?')
         
-        st.session_state
         st.divider()
         col1, col2, col3 = st.columns([2,1,1])
         if col2.button("cancel",use_container_width=True):

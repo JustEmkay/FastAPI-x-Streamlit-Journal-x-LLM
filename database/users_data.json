@@ -1,8 +1,14 @@
 {
-  "123": {
-    "email": "123@gmail.com",
-    "dob": 976579200000,
-    "id": "3cc4505f-3678-414c-b544-e26555728b9c",
-    "password": "$2b$12$buI43Y8ggvWzgTyqlLoBxupe/ojPEEKbV/mAofu7pCs/JGQWqn.9G"
-  }
+          "123": {
+                    "email": "123@gmail.com",
+                    "dob": 976579200000,
+                    "id": "3cc4505f-3678-414c-b544-e26555728b9c",
+                    "password": "$2b$12$buI43Y8ggvWzgTyqlLoBxupe/ojPEEKbV/mAofu7pCs/JGQWqn.9G"
+          },
+          "vasu": {
+                    "id": "62a40082-76fc-46fb-b51e-9779db1c401d",
+                    "email": "vasu69@gmail.com",
+                    "dob": 1000146600,
+                    "password": "$2b$12$cZE8L4y1j1gXRYL/OGy1J.T/S377.RoGGQpJFOWsIH3t0Ft.81GPC"
+          }
 }

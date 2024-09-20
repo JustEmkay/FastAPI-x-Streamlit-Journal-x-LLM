@@ -37,6 +37,8 @@ PATH_TEMP_DATAS : tuple = {
 
 app = FastAPI()
 # uvicorn test:app --reload
+# tasklist /FI "IMAGENAME eq python.exe" <---- KILL CMD for uvicorn 
+#taskkill /PID <PID> /F
 
 def check_file_exists() -> None:
     count : int = 0
@@ -44,17 +46,17 @@ def check_file_exists() -> None:
         if not os.path.exists(path):        
             try:
                 with open(path,"w") as outfile:
-                    json.dump(PATH_TEMP_DATAS[path],outfile)                        
+                    json.dump(PATH_TEMP_DATAS[path],outfile,indent=10)                        
             except Exception as e:
                 print(f'Error: {e}')
         else:
-            try:
+            try: 
                 with open(path,"r") as outfile:
                     outfile.seek(0, os.SEEK_END)
                     file_size = outfile.tell()
                     if (file_size == 0):
                         with open(path,"w") as outfile:
-                            json.dump(PATH_TEMP_DATAS[path],outfile)  
+                            json.dump(PATH_TEMP_DATAS[path],outfile,indent=10)  
             except Exception as e:
                 print(f'Error: {e}')
             finally:
@@ -73,8 +75,8 @@ def update_data(path,data) -> dict:
     if data:
         check_file_exists()
         with open(path,'w') as f:
-            json.dump(data,f)
-
+            json.dump(data,f,indent=10)
+ 
 check_file_exists() #<- check DB exist 
 
 users_data : dict = retrive_data(PATHS[0])
@@ -190,8 +192,7 @@ async def connection():
 
 @app.post("/verify/user/{userinput}")
 async def verify_user(userinput: str):
-    print("verify:",users_data)
-    
+    users_data = retrive_data(PATHS[0])
     ud = users_data.keys()
     emails = [users_data[i]['email'] for i in ud]
     if userinput in ud or userinput in emails:
@@ -200,13 +201,14 @@ async def verify_user(userinput: str):
 
 @app.post("/verify/username/{uname}")
 async def verify_username(uname: str):
+    users_data = retrive_data(PATHS[0])
     if uname in users_data:
         return True
     return False
 
 @app.post("/validate/{user_input}/{password}")
 async def validate(user_input : str , password : str):
-    
+    users_data = retrive_data(PATHS[0])
     ud : list = list (users_data.keys())
     emails : list = [users_data[i]['email'] for i in ud]
     
@@ -240,7 +242,8 @@ async def validate(user_input : str , password : str):
 @app.post("/register/{tstamp}")
 async def validate(tstamp : str ,register_data : RegisterData):
     try:
-        new_id : str = idgen()  
+        users_data = retrive_data(PATHS[0])
+        new_id : str = str(idgen() ) 
         users_data.update({
             register_data.username : {
                 'id' : new_id,
@@ -253,6 +256,7 @@ async def validate(tstamp : str ,register_data : RegisterData):
         update_data(PATHS[0],users_data) #<-- update to JSON file
         users_data = retrive_data(PATHS[0])
         
+        data = retrive_data(PATHS[1])
         data.update({
             new_id : {
                 tstamp : temp_journal
@@ -267,7 +271,7 @@ async def validate(tstamp : str ,register_data : RegisterData):
     except Exception as e:
         return {'status':False , 'error': e}
          
-
+ 
 def create_journal(uid,tstamp) -> None:
     try:
         data[uid].update({int(tstamp) : temp_journal})

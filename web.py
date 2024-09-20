@@ -243,26 +243,36 @@ def journal_preview() -> None:
             counter +=1
             st.markdown(f"""{counter}. :grey[~{j}~]""")
         counter = 0
-    
+        if not st.session_state.user_journal['not_completed'] + st.session_state.user_journal['completed']:
+            st.markdown(f""":grey[***Lazzzyyyyy***]""")
+    # rating
     with col2.container(border=True,height=300):
         
         scale : list = ['worst', 'poor', 'average', 'good', 'excellent']
         
-        st.markdown("""**Rating:**""")
+        st.markdown("""**Rating:**""",help= "  ")
         for l in rating_aspects_list:
             if l in st.session_state.user_journal:
-                st.markdown(f"""* {l}  :grey[{scale[st.session_state.user_journal[l]]}]""")
-
+                if st.session_state.user_journal[l] > 0:
+                    st.markdown(f"""* {l}  :green[{scale[(st.session_state.user_journal[l]-1)]}]""")
+                else:
+                    st.markdown(f"""* {l}  :red[Not Rated]""")
     # thankful
     with st.container(border=True):
-        st.markdown("""**Today, I'm Thankful for...**""")
-        for k in st.session_state.user_journal['thankful']:
-            st.markdown(f"""* {k}""")
+        if st.session_state.user_journal['thankful']:
+            st.markdown("""**Today, I'm Thankful for...**""")
+            for k in st.session_state.user_journal['thankful']:
+                st.markdown(f"""* {k}""")
+        else:
+            st.markdown("""**Today, I'm Thankful for...** ***Nothing***""")
     
     # lesson & s*cks
     with st.container(border=True):
-        st.markdown(f"""**Today's Lesson :** {st.session_state.user_journal['lessons']}
+        if st.session_state.user_journal['lessons']:
+            st.markdown(f"""**Today's Lesson :** {st.session_state.user_journal['lessons']}
                     \n **One thing I did that sucked:** {st.session_state.user_journal['sucks']}""")
+        else:
+            st.markdown(f"""**Lessons :**  :grey[***Empty***]""")
     
 def add_agenda() -> None:
     task_col, addBtn_col = st.columns([3,1])
@@ -510,13 +520,12 @@ def main() -> None:
             
         else:
             #login form
-            st.session_state
             with st.container(border=True):
                 st.subheader('Login',anchor=False,divider=True)
-                username =st.text_input("Username:",value=123,
+                username =st.text_input("Username:",value='',
                                             placeholder="Enter your username",
                                             label_visibility='collapsed')
-                password : str =st.text_input("Password:",value=123,
+                password : str =st.text_input("Password:",value='',
                                             placeholder="Enter your password",
                                             label_visibility='collapsed',
                                             type='password')

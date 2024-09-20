@@ -1,16 +1,30 @@
 {
-  "3cc4505f-3678-414c-b544-e26555728b9c": {
-    "1726770600": {
-      "completed": ["go for a walk with sasi"],
-      "not_completed": [],
-      "mood": 3,
-      "productivity": 2,
-      "stress_level": 0,
-      "social_interaction": 2,
-      "energy_level": 4,
-      "lessons": "",
-      "thankful": [],
-      "sucks": ""
-    }
-  }
+          "3cc4505f-3678-414c-b544-e26555728b9c": {
+                    "1726770600": {
+                              "completed": [],
+                              "not_completed": [],
+                              "mood": 0,
+                              "productivity": 0,
+                              "stress_level": 0,
+                              "social_interaction": 0,
+                              "energy_level": 0,
+                              "lessons": "",
+                              "thankful": [],
+                              "sucks": ""
+                    }
+          },
+          "62a40082-76fc-46fb-b51e-9779db1c401d": {
+                    "1726770600": {
+                              "completed": [],
+                              "not_completed": [],
+                              "mood": 5,
+                              "productivity": 0,
+                              "stress_level": 2,
+                              "social_interaction": 0,
+                              "energy_level": 3,
+                              "lessons": "",
+                              "thankful": [],
+                              "sucks": ""
+                    }
+          }
 }
