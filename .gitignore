@@ -1,2 +1,4 @@
 __pycache__
 app_config.py
+journal_data.json
+users_data.json
