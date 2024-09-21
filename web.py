@@ -24,8 +24,17 @@ if 'auth' not in st.session_state: st.session_state.auth = False
 if 'user_id' not in st.session_state: st.session_state.user_id = None
 if 'user_journal' not in st.session_state: st.session_state.user_journal = None
 if 'hash_journal' not in st.session_state: st.session_state.hash_journal = None
+if 'journals' not in st.session_state: st.session_state.journals = {
+    'status' : False ,
+    'data' : [],
+    'error' : 'Empty '
+}
+if 'temp_journal' not in st.session_state:st.session_state.temp_journal = {}
 
-tstamp_today : int  = int(dt.combine(dt.now(pytz.timezone('Asia/Calcutta')),t.min).timestamp())
+
+
+# tstamp_today : int  = int(dt.combine(dt.now(pytz.timezone('Asia/Calcutta')),t.min).timestamp())
+tstamp_today : int = int(dt(dt.now().year,dt.now().month,dt.now().day,00,00,00).timestamp())
 
 
 rating_aspects_list : list = [
@@ -103,7 +112,6 @@ def login_req(username,password) -> dict:
     if response == 200:
         return r.json()
 
-
 class Register:
     def __init__(self,uname,email,dob,password,re_password) -> None:
         self.uname = uname
@@ -162,7 +170,6 @@ class Register:
         if response == 200:
             return r.json()
     
-
 @st.dialog('Register your account')
 def register_account() -> None:
     with st.form('user signup'):

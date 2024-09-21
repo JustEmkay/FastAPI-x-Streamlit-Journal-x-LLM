@@ -4,7 +4,9 @@ import bcrypt,uuid
 import pytz,json,os.path
 from datetime import datetime as dt , time as t
 
-tstamp_today : int  = int(dt.combine(dt.now(pytz.timezone('Asia/Calcutta')),t.min).timestamp())
+# tstamp_today : int  = int(dt.combine(dt.now(pytz.timezone('Asia/Calcutta')),t.min).timestamp())
+
+tstamp_today : int = int(dt(dt.now().year,dt.now().month,dt.now().day,00,00,00).timestamp())
 
 PATHS : tuple = ('database/users_data.json','database/journal_data.json')
 PATH_TEMP_DATAS : tuple = {
@@ -330,4 +332,26 @@ async def update_journal(uid : str,tstamp : str, journal_data: JournalData):
         status : bool = False
         return {'status':status,'data':journal}
     
+@app.get("/records/{uid}")
+async def get_all_journals(uid:str):
+    try:
+        data = retrive_data(PATHS[1])
+        record_list : list = []
+        # if data[uid]:
+        print('journal record in data:',data[uid])
+        record_list = [i for i in data[uid]]
+        print("records:",record_list)
+        return {
+            'status' : True,
+            'data' : record_list,
+            'error' : f'Accessed full record list of user'
+        }    
+
+    except Exception as e:
+        print("Error :",e)
+        return {
+        'status' : False,
+        'data' : [],
+        'error' : f'Error Fetching'
+    }
     

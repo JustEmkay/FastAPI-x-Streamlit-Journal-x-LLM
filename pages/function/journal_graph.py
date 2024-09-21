@@ -5,49 +5,48 @@ import calplot
 from datetime import datetime as dt
 
 
-test_data : dict = {
-    '3cc4505f-3678-414c-b544-e26555728b9c':{
-        1725993000 : {
-        'completed' : ['Go for a walk','Call vasu'],
-        'not_completed' : ['dadadadaad'],
-        'mood' : 4,
-        'productivity' : 5,
-        'stress_level' : 1,
-        'social_interaction' : 0,
-        'energy_level': 4,
-        'lessons' : 'do or die',
-        'thankful' : ['Still alive','Having lovely parents'],
-        'sucks' : 'waking up at 5 am.'    
-        },
-        1726165800 : {
-        'completed' : ['Completed 10000 steps'],
-        'not_completed' : ['4554'],
-        'mood' : 2,
-        'productivity' : 0,
-        'stress_level' : 8,
-        'social_interaction' : 8,
-        'energy_level': 0,
-        'lessons' : '555555',
-        'thankful' : ['Still alive','Having lovely parents'],
-        'sucks' : 'Same as usual, waking up at 5 am.'    
-        },
-        1726358600 : {
-        'completed' : [],
-        'not_completed' : ['make Onam Pookalam'],
-        'mood' : 4,
-        'productivity' : 5,
-        'stress_level' : 0,
-        'social_interaction' : 5,
-        'energy_level': 4,
-        'lessons' : 'do or die',
-        'thankful' : ['Still alive','Having lovely parents'],
-        'sucks' : 'Same Same, waking up at 5 am.'
-        }
-        
-    }
-                }
+# test_data : dict = {
+#     '3cc4505f-3678-414c-b544-e26555728b9c':{
+#         1725993000 : {
+#         'completed' : ['Go for a walk','Call vasu'],
+#         'not_completed' : ['dadadadaad'],
+#         'mood' : 4,
+#         'productivity' : 5,
+#         'stress_level' : 1,
+#         'social_interaction' : 0,
+#         'energy_level': 4,
+#         'lessons' : 'do or die',
+#         'thankful' : ['Still alive','Having lovely parents'],
+#         'sucks' : 'waking up at 5 am.'    
+#         },
+#         1726165800 : {
+#         'completed' : ['Completed 10000 steps'],
+#         'not_completed' : ['4554'],
+#         'mood' : 2,
+#         'productivity' : 0,
+#         'stress_level' : 8,
+#         'social_interaction' : 8,
+#         'energy_level': 0,
+#         'lessons' : '555555',
+#         'thankful' : ['Still alive','Having lovely parents'],
+#         'sucks' : 'Same as usual, waking up at 5 am.'    
+#         },
+#         1726358600 : {
+#         'completed' : [],
+#         'not_completed' : ['make Onam Pookalam'],
+#         'mood' : 4,
+#         'productivity' : 5,
+#         'stress_level' : 0,
+#         'social_interaction' : 5,
+#         'energy_level': 4,
+#         'lessons' : 'do or die',
+#         'thankful' : ['Still alive','Having lovely parents'],
+#         'sucks' : 'Same Same, waking up at 5 am.'
+#         }      
+#     }
+#                 }
 
-id = '3cc4505f-3678-414c-b544-e26555728b9c'
+# id = '3cc4505f-3678-414c-b544-e26555728b9c'
 
 
 
@@ -113,29 +112,41 @@ def completion_calc(timestamp : int ,data:dict) -> int:
          
     return int(percentage)
                 
-def active_data(id,data,days) -> list:
+def active_data(data : list ,days) -> list:
     
     active_dates : list = []
     for i in days:
-        slctd_timestamp = int(dt.timestamp(i))
-        if slctd_timestamp in data[id]:
-            prcnt = completion_calc(slctd_timestamp)
+        start_date = dt(i.year,i.month,i.day,00,00,00)
+        slctd_timestamp = int(start_date.timestamp())
+        
+        if str(slctd_timestamp) in data:
+            print(f'{slctd_timestamp} is in data')
+            prcnt = 100
             active_dates.append(prcnt)
         else:
-            active_dates.append(0)
-    
-    return active_dates
+            active_dates.append(0)    
             
-def cal_heatmap(data : str,id : str):
+    return active_dates
+                       
+def cal_heatmap(data : list):
     """
     function retruns plt
     use pyplot to get figure
-    
     """
+    
     days = pd.date_range(start_date, end_date, freq='D')
-    active_day = active_data(id,data,days)
+    active_day = active_data(data,days)
 
     series = pd.Series(active_day, index=days)
-    calplot.calplot(series, cmap='YlGn', colorbar=True)
+    calplot.calplot(series, colorbar=True)
     
     return plt
+
+def main():
+    # cal_heatmap(test_data,id)
+    # fig = cal_heatmap(test_data,id)
+    # st.pyplot(fig)
+    pass
+
+if __name__ == '__main__':
+    main()

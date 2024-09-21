@@ -28,7 +28,12 @@ def main()->None:
             'user_journal' : None,
             'auth' : False,
             'hash_journal' : None,
-            'user_id' : None
+            'user_id' : None,
+            'journals' : {
+                            'status' : False ,
+                            'data' : [],
+                            'error' : 'Empty '
+                        }
             }
         )
             st.rerun()

@@ -1,39 +1,53 @@
 {
           "3cc4505f-3678-414c-b544-e26555728b9c": {
-                    "1726770200": {
+                    "1726857000": {
                               "completed": [],
-                              "not_completed": [],
-                              "mood": 0,
+                              "not_completed": [
+                                        "September 21-9-2024"
+                              ],
+                              "mood": 3,
                               "productivity": 0,
                               "stress_level": 0,
                               "social_interaction": 0,
-                              "energy_level": 0,
+                              "energy_level": 4,
                               "lessons": "",
                               "thankful": [],
                               "sucks": ""
                     },
                     "1726770600": {
                               "completed": [],
-                              "not_completed": [],
-                              "mood": 0,
-                              "productivity": 0,
-                              "stress_level": 0,
-                              "social_interaction": 0,
-                              "energy_level": 0,
+                              "not_completed": [
+                                "September 20-9-2024"
+                              ],
+                              "mood": 5,
+                              "productivity": 3,
+                              "stress_level": 1,
+                              "social_interaction": 5,
+                              "energy_level": 3,
                               "lessons": "",
                               "thankful": [],
                               "sucks": ""
-                    }
-          },
-          "62a40082-76fc-46fb-b51e-9779db1c401d": {
-                    "1726770600": {
+                    },
+                    "1726511400": {
                               "completed": [],
                               "not_completed": [],
-                              "mood": 5,
+                              "mood": 3,
                               "productivity": 0,
-                              "stress_level": 2,
+                              "stress_level": 0,
                               "social_interaction": 0,
-                              "energy_level": 3,
+                              "energy_level": 4,
+                              "lessons": "",
+                              "thankful": [],
+                              "sucks": ""
+                    },
+                    "1726425000": {
+                              "completed": [],
+                              "not_completed": [],
+                              "mood": 3,
+                              "productivity": 2,
+                              "stress_level": 9,
+                              "social_interaction": 0,
+                              "energy_level": 4,
                               "lessons": "",
                               "thankful": [],
                               "sucks": ""
