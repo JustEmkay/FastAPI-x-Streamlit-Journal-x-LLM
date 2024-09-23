@@ -15,6 +15,16 @@ def get_journals(uid) -> dict:
         st.session_state.journals = r.json()
         st.rerun()
 
+def get_summeriztion(uid, slct_stamp) -> str:
+    r = requests.get(URL_API+f'summerize/{uid}/{slct_stamp}')
+    response = r.status_code
+    if response == 200:
+        return r.json()
+    else:
+        return st.error(f"Error : {r.json()}")
+
+
+
 def main() -> None: 
     if not st.session_state.auth:
         st.caption("🔏 pleeeease login")
@@ -41,9 +51,14 @@ def main() -> None:
         with preview_col.container(border=True,height=450):
             st.subheader('Preview:',divider=True,anchor=False)
             preview = st.empty()
-            preview.text('---Select a record---')
+            
+
+           
         
-        with list_col.container(border=True,height=450):
+        sum_opt = list_col.radio('🤖Get AI summerization:',['on','off'],
+                    horizontal=True,index=1)
+        
+        with list_col.container(border=True,height=370):
             for index,i in enumerate(mnths):
                 expndr : bool = False
                 color : str = 'grey'
@@ -58,9 +73,12 @@ def main() -> None:
                                 mj = ManageJournal(st.session_state.user_id,j) 
                                 st.session_state.temp_journal = mj.load_data()
                                 if st.session_state.temp_journal:
-                                    preview.write(st.session_state.temp_journal)
                                     
+                                    if sum_opt == 'off':
+                                        preview.write(st.session_state.temp_journal)
 
+                                    else:
+                                        preview.write(get_summeriztion(st.session_state.user_id,j))
     
 if __name__ == '__main__':
     main()
