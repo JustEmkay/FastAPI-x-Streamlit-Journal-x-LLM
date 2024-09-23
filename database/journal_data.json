@@ -17,7 +17,7 @@
                     "1726770600": {
                               "completed": [],
                               "not_completed": [
-                                "September 20-9-2024"
+                                        "September 20-9-2024"
                               ],
                               "mood": 5,
                               "productivity": 3,
@@ -51,6 +51,26 @@
                               "lessons": "",
                               "thankful": [],
                               "sucks": ""
+                    },
+                    "1727029800": {
+                              "completed": [
+                                        "call eye hospital "
+                              ],
+                              "not_completed": [
+                                        "complete record page",
+                                        "do min.10K step walking"
+                              ],
+                              "mood": 4,
+                              "productivity": 5,
+                              "stress_level": 2,
+                              "social_interaction": 4,
+                              "energy_level": 3,
+                              "lessons": "Dont touch doom scroll on instagram as first thing to do when wake up . ",
+                              "thankful": [
+                                        "That im still alive \ud83d\ude4f",
+                                        "Caring parents"
+                              ],
+                              "sucks": "comforting  people."
                     }
           }
 }

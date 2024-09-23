@@ -29,50 +29,7 @@ PATH_TEMP_DATAS : tuple = {
 }
 
 def main():
-    def check_file_exists() -> None:
-        count : int = 0
-        for path in PATHS:
-            if not os.path.exists(path):        
-                try:
-                    with open(path,"w") as outfile:
-                        json.dump(PATH_TEMP_DATAS[path],outfile)                        
-                except Exception as e:
-                    print(f'Error: {e}')
-            else:
-                try:
-                    with open(path,"r") as outfile:
-                        outfile.seek(0, os.SEEK_END)
-                        file_size = outfile.tell()
-                        if (file_size == 0):
-                            with open(path,"w") as outfile:
-                                json.dump(PATH_TEMP_DATAS[path],outfile)  
-                except Exception as e:
-                    print(f'Error: {e}')
-                finally:
-                    count+=1
-        print(f"\nFound:{count}/{len(PATHS)}")
-        if count != len(PATHS):
-            check_file_exists()
-
-    def retrive_data(path) -> dict:
-        check_file_exists()
-        with open(path,'r') as f:
-            d = json.load(f)
-            return d
-
-    def update_data(path,data) -> dict:
-        check_file_exists()
-        with open(path,'w') as f:
-            json.dump(data,f)
-            
-        
-
-    check_file_exists()
-    # data : dict = retrive_data(PATHS[0])
-    # print("\ndata:",data)
-    # data['123'].update({'email':'1234@gmail.com'})
-    # print("\nnew_data:",data)
-    # update_data(PATHS[0],data)
+    ...
     
     
 if __name__ == "__main__":    
