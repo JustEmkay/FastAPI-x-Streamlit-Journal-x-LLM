@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel
 import bcrypt,uuid
-import pytz,json,os.path
+import json,os.path
 from datetime import datetime as dt , time as t
+from summer import summer
 
 # tstamp_today : int  = int(dt.combine(dt.now(pytz.timezone('Asia/Calcutta')),t.min).timestamp())
 
@@ -283,18 +284,6 @@ def create_journal(uid,tstamp) -> None:
     except Exception as e:
         print(f'Create_journal Error:{e}')
 
-@app.get("/journal/{uid}/{tstamp}")
-async def get_journal(uid : str,tstamp : str):
-    data = retrive_data(PATHS[1])
-    
-    if uid in data:
-        if tstamp in data[uid]:
-            return data[uid][tstamp]
-        
-    create_journal(uid,tstamp)
-    data = retrive_data(PATHS[1])
-    return data[uid][tstamp]
-
 
 @app.post("/journal/{uid}/{tstamp}")
 async def update_journal(uid : str,tstamp : str, journal_data: JournalData):
@@ -355,3 +344,28 @@ async def get_all_journals(uid:str):
         'error' : f'Error Fetching'
     }
     
+    
+    
+@app.get("/journal/{uid}/{tstamp}")
+async def get_journal(uid : str,tstamp : str):
+    data = retrive_data(PATHS[1])
+    
+    if uid in data:
+        if tstamp in data[uid]:
+            return data[uid][tstamp]
+        
+    create_journal(uid,tstamp)
+    data = retrive_data(PATHS[1])
+    return data[uid][tstamp]
+    
+    
+    
+@app.get("/summerize/{uid}/{slctd_stamp}")
+async def get_summary(uid: str, slctd_stamp: str):
+    try:
+        data = await get_journal(uid, slctd_stamp)
+        result = await summer(data) 
+        return result
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error summarizing journal: {str(e)}")
