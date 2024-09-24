@@ -9,10 +9,11 @@ st.set_page_config(
 
 def main()->None:
     st.title("Logout",anchor=False)
-    
     st.divider()
+    
     if 'auth' not in st.session_state:
         st.switch_page('web.py')
+    
     if st.session_state.auth:
         st.markdown("### Are you sure?")
         st.caption('Do you want to logout?')
@@ -33,13 +34,14 @@ def main()->None:
                             'status' : False ,
                             'data' : [],
                             'error' : 'Empty '
-                        }
-            }
+                        },
+            'temp_journal' : {}
+             }
         )
             st.rerun()
+    
     else:
         st.caption('pleeease login to logout🤦‍♂️')
-    
-    
+
 if __name__ == '__main__':
     main()
