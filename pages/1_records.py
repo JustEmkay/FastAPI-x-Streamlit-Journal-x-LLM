@@ -1,12 +1,12 @@
 import streamlit as st
 import requests
-from web import URL_API,ManageJournal
+from home import URL_API,ManageJournal
 from pages.function.journal_graph import cal_heatmap
 from datetime import datetime as dt
 
 
 if 'journals' not in st.session_state: st.session_state.journals = {}
-
+scale : tuple = ('worst', 'poor', 'average', 'good', 'excellent')
 
 def get_journals(uid) -> dict:
     r = requests.get(URL_API+f'records/{uid}')
@@ -19,11 +19,46 @@ def get_summeriztion(uid, slct_stamp) -> str:
     r = requests.get(URL_API+f'summerize/{uid}/{slct_stamp}')
     response = r.status_code
     if response == 200:
-        return r.json()
+        return st.write(r.json())
     else:
-        return st.error(f"Error : {r.json()}")
+        error : dict = r.json()
+        return st.error(f"{error['detail']}")
+
+def perview_model(slctd_journal) -> None:
+    
+    with st.expander("Agendas Completed and not completed"):
+        
+        if slctd_journal['completed']:
+            for c in slctd_journal['completed']:
+                st.write(f'~~:grey[{c}]~~')
+        else:
+            st.write('***---Lazyyyyy---***')
+
+        if slctd_journal['not_completed']:
+            for nc in slctd_journal['not_completed']:
+                st.write(nc)
+        elif slctd_journal['completed'] and not slctd_journal['not_completed']:
+            st.write('***---Welldone👏---***')
+
+    with st.expander("Rating of that day!"):
+        st.write(f"Your mood ? {scale[slctd_journal['mood']-1]}")
+        st.write(f"How much productivity ? {scale[slctd_journal['productivity']-1]}")
+        st.write(f"productivity ? {scale[slctd_journal['stress_level']-1]}")
+        st.write(f"productivity ? {scale[slctd_journal['social_interaction']-1]}")
+        st.write(f"productivity ? {scale[slctd_journal['energy_level']-1]}")
 
 
+    with st.expander("Lesson Learned :"):
+        if slctd_journal['lessons']:
+            st.write(f"{slctd_journal['lessons']}")
+        else:
+            st.write("***:gray[---None---]***")
+
+    with st.expander("One thing that i did, sucked:"):
+        if slctd_journal['sucks']:
+            st.write(f"{slctd_journal['sucks']}")
+        else:
+            st.write("***:gray[---None---]***")
 
 def main() -> None: 
     if not st.session_state.auth:
@@ -52,9 +87,7 @@ def main() -> None:
             st.subheader('Preview:',divider=True,anchor=False)
             preview = st.empty()
             
-
            
-        
         sum_opt = list_col.radio('🤖Get AI summerization:',['on','off'],
                     horizontal=True,index=1)
         
@@ -70,15 +103,21 @@ def main() -> None:
                     for j in st.session_state.journals['data']:
                         if dt.fromtimestamp(int(j)).month == (index+1):
                             if st.checkbox(dt.fromtimestamp(int(j)).strftime('%d-%m-%Y')):
-                                mj = ManageJournal(st.session_state.user_id,j) 
-                                st.session_state.temp_journal = mj.load_data()
+                                mj = ManageJournal(st.session_state.user_id,j)
+                                try: 
+                                    st.session_state.temp_journal = mj.load_data()
+                                    st.session_state.temp_journal.sort(reverse = True)
+                                except ConnectionError as e:
+                                    st.error(f'Error : {e}')
+                                
                                 if st.session_state.temp_journal:
                                     
                                     if sum_opt == 'off':
-                                        preview.write(st.session_state.temp_journal)
-
+                                        with preview.container():
+                                            perview_model(st.session_state.temp_journal)                                        
                                     else:
-                                        preview.write(get_summeriztion(st.session_state.user_id,j))
+                                        with preview:
+                                            get_summeriztion(st.session_state.user_id,j)
     
 if __name__ == '__main__':
     main()
