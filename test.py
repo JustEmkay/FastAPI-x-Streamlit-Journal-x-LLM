@@ -356,7 +356,7 @@ async def get_journal(uid : str,tstamp : str):
         
     create_journal(uid,tstamp)
     data = retrive_data(PATHS[1])
-    return data[uid][tstamp]
+    return data[str(uid)][tstamp]
     
     
     
