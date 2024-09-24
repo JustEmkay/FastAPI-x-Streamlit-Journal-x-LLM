@@ -30,6 +30,9 @@ if 'journals' not in st.session_state: st.session_state.journals = {
     'error' : 'Empty '
 }
 if 'temp_journal' not in st.session_state:st.session_state.temp_journal = {}
+if 'settings' not in st.session_state:st.session_state.settings = {
+    'predef' : []
+}
 
 
 
@@ -44,6 +47,8 @@ rating_aspects_list : list = [
     'social_interaction',
     'energy_level'
 ]
+
+SCALE : tuple = ('worst', 'poor', 'average', 'good', 'excellent')
 
 def connect_api() -> bool:
     try:
@@ -255,13 +260,13 @@ def journal_preview() -> None:
     # rating
     with col2.container(border=True,height=300):
         
-        scale : list = ['worst', 'poor', 'average', 'good', 'excellent']
+        
         
         st.markdown("""**Rating:**""",help= "  ")
         for l in rating_aspects_list:
             if l in st.session_state.user_journal:
                 if st.session_state.user_journal[l] > 0:
-                    st.markdown(f"""* {l}  :green[{scale[(st.session_state.user_journal[l]-1)]}]""")
+                    st.markdown(f"""* {l}  :green[{SCALE[(st.session_state.user_journal[l]-1)]}]""")
                 else:
                     st.markdown(f"""* {l}  :red[Not Rated]""")
     # thankful
