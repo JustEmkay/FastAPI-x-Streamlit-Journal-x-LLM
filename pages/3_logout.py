@@ -35,7 +35,10 @@ def main()->None:
                             'data' : [],
                             'error' : 'Empty '
                         },
-            'temp_journal' : {}
+            'temp_journal' : {},
+            'settings' : {
+                'predef' : []
+            }
              }
         )
             st.rerun()
