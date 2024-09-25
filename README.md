@@ -7,5 +7,5 @@ streamlit run web.py
 
 ```
 #To run FastAPI
-uvicorn test:app --reload
+uvicorn test:app
 ```
