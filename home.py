@@ -35,8 +35,6 @@ if 'settings' not in st.session_state:st.session_state.settings = {
 }
 
 
-
-# tstamp_today : int  = int(dt.combine(dt.now(pytz.timezone('Asia/Calcutta')),t.min).timestamp())
 tstamp_today : int = int(dt(dt.now().year,dt.now().month,dt.now().day,00,00,00).timestamp())
 
 
@@ -124,6 +122,7 @@ class Register:
         self.dob = dob
         self.pswd = password
         self.rpswd = re_password
+        self.predef = []
     
     def dob_to_timestamp(self) -> int:
         d_timestamp=int(dt(self.dob.year,self.dob.month,self.dob.day).timestamp())
@@ -167,7 +166,8 @@ class Register:
                 "username" : self.uname,     
                 "email" : self.email,
                 "dob": Register.dob_to_timestamp(self),
-                "password": pass_hashing(self.pswd)
+                "password": pass_hashing(self.pswd),
+                "predef" : self.predef
             
         }
         r = requests.post(URL_API+f'register/{tstamp_today}',json=temp_user)
@@ -547,6 +547,8 @@ def main() -> None:
                     st.warning('Email not found',icon='⚠')
                     log_btn : bool = True
                 
+                alert = st.empty()
+                
                 blank_col,reg_col,log_col = st.columns([2,1,1])
                 if reg_col.button('register',use_container_width=True):
                     register_account()
@@ -555,9 +557,15 @@ def main() -> None:
                                 type='primary',disabled=log_btn):
                     if username and password:
                         login_response : dict = login_req(username,password)
-                        if login_response['auth'] : 
+                        if login_response['error']:
+                            alert.error(login_response['message'])    
+                        elif login_response['auth'] and not login_response['error']: 
                             st.session_state.auth = login_response['auth']
                             st.session_state.user_id = login_response['user_id']
+                            st.session_state.settings.update({
+                                    'predef' : login_response['predef']
+                                })  
+                            st.success(login_response['message'])
                             st.spinner("Loading Homepage....")
                             time.sleep(2)
                             st.rerun()
