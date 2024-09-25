@@ -3,12 +3,31 @@
                     "email": "123@gmail.com",
                     "dob": 976579200000,
                     "id": "3cc4505f-3678-414c-b544-e26555728b9c",
-                    "password": "$2b$12$buI43Y8ggvWzgTyqlLoBxupe/ojPEEKbV/mAofu7pCs/JGQWqn.9G"
+                    "password": "$2b$12$buI43Y8ggvWzgTyqlLoBxupe/ojPEEKbV/mAofu7pCs/JGQWqn.9G",
+                    "predef": [
+                              "use rope"
+                    ]
           },
           "vasu": {
                     "id": "36f20bfa-b868-41fa-b293-ab3b4edebb61",
                     "email": "vasu69@gmail.com",
                     "dob": 1000146600,
                     "password": "$2b$12$aPLpXSz0EeZb7s4oqCHdZe0EaWS5sIKGxjUV5ckHM3SskgpxsK4dS"
+          },
+          "juhi": {
+                    "id": "02fde7c2-aa51-43f3-af28-e3f0811a6023",
+                    "email": "juhi@gmail.com",
+                    "dob": 1031682600,
+                    "password": "$2b$12$Q/b5LeHyxOKwOo9BBdiru.6eRZdY1EEBazEYC/1iLkwpF0rjQgTTy",
+                    "predef": [
+                              "go for jogging"
+                    ]
+          },
+          "tintu": {
+                    "id": "e4505ec3-4fdf-4e2a-889c-668e71f61e34",
+                    "email": "tintu@gmail.com",
+                    "dob": 1000146600,
+                    "password": "$2b$12$qbFSwFCIYIvEn/7Hn5RHC.LERFteKVzg5wI7jv.HLUKHFP16bL7f6",
+                    "predef": []
           }
 }
