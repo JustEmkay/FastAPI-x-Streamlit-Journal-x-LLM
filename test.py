@@ -16,7 +16,8 @@ PATH_TEMP_DATAS : tuple = {
         'email' : '123@gmail.com',
         'dob' : 976579200000,
         'id': '3cc4505f-3678-414c-b544-e26555728b9c',
-        'password': '$2b$12$buI43Y8ggvWzgTyqlLoBxupe/ojPEEKbV/mAofu7pCs/JGQWqn.9G'
+        'password': '$2b$12$buI43Y8ggvWzgTyqlLoBxupe/ojPEEKbV/mAofu7pCs/JGQWqn.9G',
+        'predef' : []
     }
 },
     PATHS[1] : {
@@ -74,7 +75,7 @@ def retrive_data(path) -> dict:
         d = json.load(f)
         return d
 
-def update_data(path,data) -> dict:
+def update_data(path : str, data : dict) -> dict:
     if data:
         check_file_exists()
         with open(path,'w') as f:
@@ -97,6 +98,16 @@ temp_journal : dict = {
         'sucks' : ''    
         }
 
+def check_predef_agenda(uid : str) -> list:
+    users_data = retrive_data(PATHS[0])
+    for i in users_data:
+        if users_data[i]['id'] == uid:
+            if 'predef' in  users_data[i]:
+                return users_data[i]['predef']
+            else:
+                return []
+    
+    
 
 # data : dict = {
 #     '3cc4505f-3678-414c-b544-e26555728b9c':{
@@ -166,6 +177,7 @@ class RegisterData(BaseModel):
     email: str
     dob: int
     password: str
+    predef : list[str]
 
 def idgen():
     unique_id = uuid.uuid4()
@@ -224,22 +236,30 @@ async def validate(user_input : str , password : str):
         else:
             return {
                 'auth':False,
-                'user_id': None
+                'user_id': None,
+                'predef':[],
+                'error':True,
+                'message':'User not found'
                 }
     
     user_hash = password.encode('utf-8')
     user_og_hash = users_data[slct_username]['password'].encode()
     result : bool = bcrypt.checkpw(user_hash,user_og_hash)
     if result:
-        print(f'id:{users_data[slct_username]["id"]}')
         return {
             'auth': True ,
-            'user_id':f'{users_data[slct_username]["id"]}'
+            'user_id':f'{users_data[slct_username]["id"]}',
+            'predef': users_data[slct_username]['predef'],
+            'error':False,
+            'message' : 'login successful'
             }
     else:
         return {
             'auth':False,
-            'user_id': None
+            'user_id': None,
+            'predef' : [],
+            'error':True,
+            'message':'Wrong id or password'
             }
 
 @app.post("/register/{tstamp}")
@@ -252,7 +272,8 @@ async def validate(tstamp : str ,register_data : RegisterData):
                 'id' : new_id,
                 'email': register_data.email,
                 'dob' : register_data.dob,
-                'password' : register_data.password
+                'password' : register_data.password,
+                'predef': register_data.predef
             }
         })
         
@@ -274,16 +295,20 @@ async def validate(tstamp : str ,register_data : RegisterData):
     except Exception as e:
         return {'status':False , 'error': e}
          
- 
-def create_journal(uid,tstamp) -> None:
+def create_journal(uid : str,tstamp :str) -> None:
     try:
-        data = retrive_data(PATHS[1])    
+        data = retrive_data(PATHS[1])
+        # temp_journal['not_completed'].update(check_predef_agenda(uid))    
         data[uid].update({str(tstamp) : temp_journal})
-        update_data(PATHS[1],data) #<-- update to JSON file
+        update_data(PATHS[1],data) 
+        
+        data = retrive_data(PATHS[1])
+        data[uid][tstamp]['not_completed'].update(check_predef_agenda(uid))
+        update_data(PATHS[1],data)
+        
         
     except Exception as e:
         print(f'Create_journal Error:{e}')
-
 
 @app.post("/journal/{uid}/{tstamp}")
 async def update_journal(uid : str,tstamp : str, journal_data: JournalData):
@@ -343,9 +368,7 @@ async def get_all_journals(uid:str):
         'data' : [],
         'error' : f'Error Fetching'
     }
-    
-    
-    
+         
 @app.get("/journal/{uid}/{tstamp}")
 async def get_journal(uid : str,tstamp : str):
     data = retrive_data(PATHS[1])
@@ -356,10 +379,8 @@ async def get_journal(uid : str,tstamp : str):
         
     create_journal(uid,tstamp)
     data = retrive_data(PATHS[1])
-    return data[str(uid)][tstamp]
-    
-    
-    
+    return data[uid][str(tstamp)]
+     
 @app.get("/summerize/{uid}/{slctd_stamp}")
 async def get_summary(uid: str, slctd_stamp: str):
     try:
@@ -369,3 +390,69 @@ async def get_summary(uid: str, slctd_stamp: str):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error summarizing journal: {str(e)}")
+
+@app.post("/predef/{uid}/{tstamp}")
+async def update_agenda(uid : str,tstamp : str , predef : list[str]):
+    
+    try:
+        users_data : dict = retrive_data(PATHS[0])
+        for user in users_data:
+            if users_data[user]['id'] == uid:
+                if 'predef' in users_data[user]:
+                    for task in predef:
+                        if task not in users_data[user]['predef']:
+                            users_data[user]['predef'].append(task)
+                else:     
+                    users_data[user].update({
+                        'predef' : predef
+                    })
+        update_data(PATHS[0],users_data)
+        
+        data : dict = retrive_data(PATHS[1])
+        for task in predef:
+            if task not in data[uid][tstamp]['not_completed']:
+                if task not in data[uid][tstamp]['completed']:
+                    data[uid][tstamp]['not_completed'].append(task)
+        
+        update_data(PATHS[1],data)
+        data : dict = retrive_data(PATHS[1])
+        
+        return {
+            'status' : True,
+            'error' : '',
+            'data' : data 
+        }
+                
+    except Exception as e:
+        print(f"\nError:{e}")
+        return {
+            'status' : False,
+            'error' : e
+        }
+        
+@app.post('/prdef/delete/{uid}')
+async def delete_predef( uid : str , predef : list[str]):
+    try:
+        users_data : dict = retrive_data(PATHS[0])
+        temp : list[str] = []
+        for user in users_data:
+            if users_data[user]['id'] == uid:
+                temp_un : str = user 
+                for task in users_data[user]['predef']:
+                    if task not in predef:
+                        temp.append(task)
+                users_data[user]['predef'] = temp
+        
+        update_data(PATHS[0],users_data)
+        users_data : dict = retrive_data(PATHS[0])    
+        return {
+            'status' : True,
+            'error' : '',
+            'data' : users_data[temp_un]['predef']
+        }
+    except Exception as e:
+        return {
+            'status' : False,
+            'error' : f'{e}',
+            'datat' : None,
+        }
