@@ -11,12 +11,7 @@ console = Console()
 
 URL_API : str = "http://127.0.0.1:8000/"
 
-st.set_page_config(
-    page_title="journal",
-    page_icon="📑",
-    layout="centered",
-    initial_sidebar_state="collapsed",
-)
+
 
 if 'api_connect' not in st.session_state: st.session_state.api_connect = False
 if 'error' not in st.session_state: st.session_state.error = False
@@ -492,8 +487,7 @@ def homepage() -> None:
         else:
             st.toast(":red[Failed to update to Database]")
     
-    
-    
+        
 #--MAIN----
 def main() -> None:
     
@@ -572,6 +566,15 @@ def main() -> None:
             
     
 if __name__ == "__main__":
+    
+    st.set_page_config(
+    page_title="journal",
+    page_icon="📑",
+    layout="centered",
+    initial_sidebar_state="collapsed",
+)
+    
+    
     main()
     components.html("""
     <script>
