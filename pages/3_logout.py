@@ -1,11 +1,5 @@
 import streamlit as st
 
-st.set_page_config(
-    page_title="Logout",
-    page_icon="😢",
-    layout="centered",
-    initial_sidebar_state="collapsed",
-)
 
 def main()->None:
     st.title("Logout",anchor=False)
@@ -47,4 +41,14 @@ def main()->None:
         st.caption('pleeease login to logout🤦‍♂️')
 
 if __name__ == '__main__':
+    
+    st.set_page_config(
+    page_title="Logout",
+    page_icon="😢",
+    layout="centered",
+    initial_sidebar_state="collapsed",
+)
+
+    
+    
     main()

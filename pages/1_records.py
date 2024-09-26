@@ -106,7 +106,6 @@ def main() -> None:
                                 mj = ManageJournal(st.session_state.user_id,j)
                                 try: 
                                     st.session_state.temp_journal = mj.load_data()
-                                    st.session_state.temp_journal.sort(reverse = True)
                                 except ConnectionError as e:
                                     st.error(f'Error : {e}')
                                 
@@ -120,4 +119,12 @@ def main() -> None:
                                             get_summeriztion(st.session_state.user_id,j)
     
 if __name__ == '__main__':
+    
+    st.set_page_config(
+    page_title="Records",
+    page_icon="📁",
+    layout="centered",
+    initial_sidebar_state="collapsed",
+)
+   
     main()
