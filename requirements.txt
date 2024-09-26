@@ -1,0 +1,13 @@
+streamlit 
+uvicorn                  
+requests
+bcrypt
+hashlib
+ollama
+fastapi
+uuid
+pydantic
+calplot
+pandas
+plotly
+matplotlib
