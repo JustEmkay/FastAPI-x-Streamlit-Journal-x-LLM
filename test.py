@@ -107,7 +107,9 @@ def check_predef_agenda(uid : str) -> list:
             else:
                 return []
     
-    
+def validate_password() -> bool :   
+    ...
+
 
 # data : dict = {
 #     '3cc4505f-3678-414c-b544-e26555728b9c':{
@@ -456,3 +458,55 @@ async def delete_predef( uid : str , predef : list[str]):
             'error' : f'{e}',
             'datat' : None,
         }
+        
+@app.get('/export/{uname}/{password}')
+async def expor_journal(uname : str ,password : str ):
+    
+    try:
+        users_data : dict = retrive_data(PATHS[0])
+        unames : list = list (users_data.keys())
+        emails : list = [users_data[i]['email'] for i in unames]
+        
+        if uname in unames:
+            print('is in unames')
+            og_hash : str = users_data[uname]['password']
+            og_name : str = uname
+        
+        elif uname in emails:
+            print('is in emails')
+            og_name : str = unames[emails.index(uname)]
+            og_hash : str = users_data[og_name]['password']
+            
+        else:
+            return {
+            'status' : False,
+            'error' : True,
+            'message' : 'account not found'
+        }
+
+        result : bool = bcrypt.checkpw(password.encode('utf-8'),
+                                       og_hash.encode())
+        if result:
+            print('account found:',og_name)
+            
+            data : dict = retrive_data(PATHS[1])
+            user_journals : dict = data[users_data[og_name]['id']]
+            
+            return {
+                'status' : True,
+                'error' : False,
+                'message' : 'Exported all your journals',
+                'data' : user_journals 
+            }  
+            
+        else:
+            print('account found:',og_name)
+            
+    except Exception as e:
+        print('Exception activated')
+        return {
+            'status' : False,
+            'error' : True,
+            'message' : e
+        }
+    
