@@ -1,14 +1,9 @@
 import streamlit as st
 import time
-import requests
-from home import URL_API,tstamp_today,ManageJournal
+import requests,json
+from home import URL_API,tstamp_today,pass_hashing
 
-st.set_page_config(
-    page_title="Settings",
-    page_icon="⚙",
-    layout="centered",
-    initial_sidebar_state="collapsed",
-)
+
 
 def set_predef_agenda(uid,predef,tstamp) -> dict:
     r = requests.post(URL_API+f'predef/{uid}/{str(tstamp)}',json=predef)
@@ -33,8 +28,23 @@ def delete_predef(uid,predef) -> dict:
             'datat' : None,
         }
     
+def get_backup(uname : str, password : str) -> dict:
     
+    # phash : str  = pass_hashing(password) 
+    r = requests.get(URL_API + f"export/{uname}/{password}")
+    response = r.status_code
+    if response == 200:
+        return r.json()
+    return {
+        'status' : False,
+        'data' : None,
+        'error' : True,
+        'message' : 'Error requesting backup'
+    }
+   
+def convert_to_json(data : dict) :
     
+    return json.dumps(data,indent=10)
 
 def set_agenda() -> None:
 
@@ -81,19 +91,51 @@ def set_agenda() -> None:
             else:
                 error.warning("Enter something bruu!!",icon='🤦‍♂️')
                 
-
 def import_journal() -> None:
     with st.expander("Import journals from backup",expanded=True):
         st.subheader('Import Backup',anchor=False,divider=True)
         with st.container(border=True):
             ...
-            
 
+           
 def export_journal() -> None:
-    with st.expander("Export your journal as backup JSON file"):
+    with st.expander("Export your journal as backup JSON file",expanded=True):
         st.subheader('Export & Backup',anchor=False,divider=True)
         with st.container(border=True):
-            ...
+            
+            #--------Confirmation
+            st.caption('Fill form to Export all your journals as encrypted json file')
+            uname : str = st.text_input('username/email',
+                                        label_visibility='collapsed',
+                                        placeholder='Enter your username/email:')
+            
+            password : str = st.text_input('password',
+                                        label_visibility='collapsed',
+                                        placeholder='Enter your password:',
+                                        type='password')
+            
+            alert_col, bttn_col1, bttn_col2 = st.columns([2,1,1])
+            alert = alert_col.empty()
+            bttn_status : bool = True
+            json_file = convert_to_json({})
+            
+            if bttn_col1.button('Get Export',use_container_width=True,
+                               type='primary'):
+                result : dict = get_backup(uname,password)
+                
+                if result['error']:
+                    with alert:
+                        st.error(result['message'])   
+                elif not result['error']:
+                    with alert:
+                        st.success(result['message'])
+                    
+                    json_file = convert_to_json(result['data'])
+                      
+            bttn_col2.download_button('Download JSON', data=json_file,
+                                file_name="st_journal.json",mime="text/json",
+                                disabled=bttn_status,use_container_width=True)
+                       
             
             
 
@@ -118,4 +160,13 @@ def main():
         
     
 if __name__ == '__main__':
+    
+    st.set_page_config(
+    page_title="Settings",
+    page_icon="⚙",
+    layout="centered",
+    initial_sidebar_state="collapsed",
+)
+    
+    
     main()
