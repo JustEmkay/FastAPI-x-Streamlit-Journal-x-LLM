@@ -143,9 +143,9 @@ def main():
     if not st.session_state.auth:
         login_warning = st.empty()
         login_warning.caption('pleeease login to access settings🙏')
-        for i in range(10):
+        for i in range(1,10):
             time.sleep(1)
-            login_warning.caption(f'switching to login page in {i}s')
+            login_warning.caption(f'switching to login page in {10-i}s')
         st.switch_page('home.py')
     
     else:

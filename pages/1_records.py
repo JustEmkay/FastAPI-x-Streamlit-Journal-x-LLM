@@ -3,6 +3,7 @@ import requests
 from home import URL_API,ManageJournal
 from pages.function.journal_graph import cal_heatmap
 from datetime import datetime as dt
+import time
 
 
 if 'journals' not in st.session_state: st.session_state.journals = {}
@@ -63,6 +64,13 @@ def perview_model(slctd_journal) -> None:
 def main() -> None: 
     if not st.session_state.auth:
         st.caption("🔏 pleeeease login")
+        login_warning = st.empty()
+        login_warning.caption('pleeease login to access settings🙏')
+        for i in range(1,10):
+            time.sleep(1)
+            login_warning.caption(f'switching to login page in {10-i}s')
+        st.switch_page('home.py')
+            
     else:
         col1,col2 = st.columns([0.8,0.2],vertical_alignment='bottom')
         col1.header('Journal Records',divider=True,anchor=False)

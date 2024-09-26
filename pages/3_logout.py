@@ -1,5 +1,5 @@
 import streamlit as st
-
+import time
 
 def main()->None:
     st.title("Logout",anchor=False)
@@ -39,6 +39,12 @@ def main()->None:
     
     else:
         st.caption('pleeease login to logout🤦‍♂️')
+        login_warning = st.empty()
+        login_warning.caption('pleeease login to access settings🙏')
+        for i in range(1,15):
+            time.sleep(1)
+            login_warning.caption(f'switching to login page in {10-i}s')
+        st.switch_page('home.py')
 
 if __name__ == '__main__':
     
