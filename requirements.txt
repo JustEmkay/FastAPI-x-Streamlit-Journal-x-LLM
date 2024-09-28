@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 streamlit 
 uvicorn                  
 requests
@@ -10,4 +11,18 @@ pydantic
 calplot
 pandas
 plotly
+=======
+streamlit 
+uvicorn                  
+requests
+bcrypt
+hashlib
+ollama
+fastapi
+uuid
+pydantic
+calplot
+pandas
+plotly
+>>>>>>> 886cb87d334d3d5cd1b016bb269207b1dc9a4de9
 matplotlib
