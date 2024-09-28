@@ -1,5 +1,4 @@
 import ollama
-# import asyncio
 
 
 async def summarize_journal(prompt: str) -> str:
